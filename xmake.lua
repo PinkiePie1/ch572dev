@@ -160,17 +160,15 @@ target("ch572_blink")
     add_ldflags(
         table.unpack(arch_flags),
         "-nostartfiles",
-        "-Xlinker", "--gc-sections",
- --       "-Xlinker", "--print-memory-usage",
- --       "-Wl,-Map=objs/ch585.map",
+        "-Xlinker --gc-sections",
+        "-Xlinker --print-memory-usage",
+        "-Wl,-Map=build/ch572_blink.map",
         "--specs=nano.specs",
         "--specs=nosys.specs",
         "-Wl,--wrap=memcpy",
- --       "-LCH585Libs/BLELIB",
         "-LCH572libs/StdPeriphDriver",
         "-L../",
         "-lprintf",
---        "-lCH58xBLE",
         "-lISP572",
         {force = true}
     )

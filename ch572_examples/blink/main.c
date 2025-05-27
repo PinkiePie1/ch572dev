@@ -24,9 +24,9 @@ void main(void)
 	while( 1 )
         {
             GPIOA_SetBits(GPIO_Pin_9);
-            DelayMs(900);
+            DelayMs(500);
             GPIOA_ResetBits(GPIO_Pin_9);
-            DelayMs(900);
+            DelayMs(500);
         }
 
 }
