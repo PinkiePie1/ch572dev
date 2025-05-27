@@ -1,0 +1,8 @@
+*.hex
+*.bin
+*.o
+*.lst
+*.map
+objs
+build
+.xmake
