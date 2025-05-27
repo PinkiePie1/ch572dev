@@ -74,6 +74,7 @@ target("ch572")
 	add_cflags(table.unpack(arch_flags))
 	add_asflags(table.unpack(arch_flags), "-x", "assembler-with-cpp")
 
+
 	
 
 
@@ -83,19 +84,22 @@ rule("generateAll")
         import("core.tool.toolchain")
         import("utils.progress")
         os.mkdir("objs")
-        os.vrunv(target:tool("objcopy"), {
+        os.execv(target:tool("objcopy"), {
             "-O", "binary",
             "-S", target:targetfile(),
             path.join("objs", target:name() .. ".bin")
         })
         progress.show(opt.progress, "${color.build.object}generated %s", target:name() .. ".bin")
 
-        os.vrunv(target:tool("objcopy"), {
+        os.execv(target:tool("objcopy"), {
             "-O", "ihex",
             "-S", target:targetfile(),
             path.join("objs", target:name() .. ".hex")
         })
         progress.show(opt.progress, "${color.build.object}generated %s", target:name() .. ".hex")
 
+		os.execv(target:tool("size"),{
+			target:targetfile()
+		})
     end)
 
