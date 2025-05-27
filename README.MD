@@ -1,1 +1,1 @@
-编译：xmake build ch572_blink
+编译：xmake -b blink
