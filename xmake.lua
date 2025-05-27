@@ -94,3 +94,105 @@ target("ch585")
             path.join("objs", target:name() .. ".bin")
         })
     end)
+
+
+target("CH572libs")
+    set_kind("static")
+    add_files("CH572libs/StdPeriphDriver/*.c")
+    add_files("CH572libs/Startup/startup_CH572.S")
+    
+
+    add_includedirs(
+        "./",
+        "CH572libs/StdPeriphDriver/inc",
+        "CH572libs/Startup",
+        "CH572libs/RVMSIS"
+    )
+
+
+target("ch572_blink")
+    set_kind("binary")
+    set_toolchains("riscv-gcc")
+    add_deps("CH572libs")
+
+ --   add_rules("c.unity_build")
+
+    -- 添加源文件
+    add_files("ch572_examples/blink/*.c")
+    add_files("CH572libs/StdPeriphDriver/*.c")
+    add_files("CH572libs/Startup/startup_CH572.S")
+
+    -- 添加头文件搜索路径
+    add_includedirs(
+        "./ch572_examples/blink",
+        "CH572libs/StdPeriphDriver/inc",
+        "CH572libs/Startup",
+        "CH572libs/RVMSIS"
+    )
+
+    -- 设置链接脚本
+    set_policy("build.merge_archive", false) -- 防止 .a 自动展开
+    add_ldflags("-TCH572libs/Ld/Link.ld", {force = true})
+
+    -- 架构和优化
+    local arch_flags = {
+        "-march=rv32imc_zba_zbb_zbc_zbs_xw",
+        "-mabi=ilp32",
+        "-mcmodel=medany",
+        "-msmall-data-limit=8",
+        "-msave-restore",
+        "-fmax-errors=20",
+        "-fmessage-length=0",
+        "-fsigned-char",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-fno-common",
+        "-Os"
+    }
+
+    set_policy("check.auto_ignore_flags", false)
+
+    add_cflags(table.unpack(arch_flags))
+    add_asflags(table.unpack(arch_flags), "-x", "assembler-with-cpp")
+    -- add_defines("__GNUC__") -- 或你用到的 C_DEFS 宏
+
+    -- 设置链接参数
+    add_ldflags(
+        table.unpack(arch_flags),
+        "-nostartfiles",
+        "-Xlinker", "--gc-sections",
+ --       "-Xlinker", "--print-memory-usage",
+ --       "-Wl,-Map=objs/ch585.map",
+        "--specs=nano.specs",
+        "--specs=nosys.specs",
+        "-Wl,--wrap=memcpy",
+ --       "-LCH585Libs/BLELIB",
+        "-LCH572libs/StdPeriphDriver",
+        "-L../",
+        "-lprintf",
+--        "-lCH58xBLE",
+        "-lISP572",
+        {force = true}
+    )
+
+
+    -- 生成 bin 和 hex
+    after_build(function (target)
+        import("core.tool.toolchain")
+        -- 加载你刚才定义的 riscv-gcc toolchain
+        local gcc = target:tool("cc")
+        local objpath , _ = path.filename(gcc):gsub("gcc", "objcopy")
+        local objcopy = path.join(path.directory(gcc), objpath)
+        os.mkdir("objs")
+        os.execv(objcopy, {
+            "-O", "binary",
+            "-S", target:targetfile(),
+            path.join("objs", target:name() .. ".bin")
+        })
+
+        os.execv(objcopy, {
+            "-O", "ihex",
+            "-S", target:targetfile(),
+            path.join("objs", target:name() .. ".hex")
+        })
+    end)
