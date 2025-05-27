@@ -64,8 +64,9 @@ target("ch572")
 	    "-Wl,--wrap=memcpy",
 	    "-LCH572libs/StdPeriphDriver",
 	    "-L../",
-	    "-lprintf",
-	    "-T", "$(ldfile)"
+--	    "-T", "$(ldfile)",
+	    "-lprintf"
+
 	)
 	
 	set_policy("check.auto_ignore_flags", false)

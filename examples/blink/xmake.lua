@@ -11,6 +11,10 @@ target("blink")
     add_includedirs(
         "./"
     )
+
+    check_ld()
+
+
     
 
 --  add_defines("DEBUG=1") --这里放预处理define
