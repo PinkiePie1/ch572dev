@@ -20,6 +20,7 @@ option("ldfile")
 option_end()
 
 
+
 target("ch572")
 	set_kind("static")
 
@@ -27,7 +28,6 @@ target("ch572")
 	add_files("CH572libs/StdPeriphDriver/*.c")
 	add_files("CH572libs/StdPeriphDriver/*.a")
 	add_files("CH572libs/Startup/startup_CH572.S")
-	add_files()
 	add_includedirs(
 	    "./",
 	    "CH572libs/StdPeriphDriver/inc",
@@ -75,7 +75,13 @@ target("ch572")
 	add_asflags(table.unpack(arch_flags), "-x", "assembler-with-cpp")
 
 
-	
+target("ch572ble")
+	set_kind("static")
+	add_rules("c") --加这一行，这样xmake才知道这是c文件的library
+
+	add_files("CH572libs/BLELIB/*.a")
+
+	add_includedirs("CH572libs/BLELIB",{public = true})	
 
 
 -- 生成bin和hex文件
