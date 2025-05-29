@@ -26,7 +26,7 @@ void main(void)
             GPIOA_SetBits(GPIO_Pin_9);
             DelayMs(500);
             GPIOA_ResetBits(GPIO_Pin_9);
-            DelayMs(500);
+            DelayMs(50);
         }
 
 }

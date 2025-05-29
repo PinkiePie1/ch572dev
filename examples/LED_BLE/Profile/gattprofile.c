@@ -163,7 +163,7 @@ static gattAttribute_t simpleProfileAttrTbl[] = {
         GATT_PERMIT_READ,
         0,
         simpleProfileChar1UserDesp},
-
+/*
     // Characteristic 2 Declaration
     {
         {ATT_BT_UUID_SIZE, characterUUID},
@@ -254,6 +254,7 @@ static gattAttribute_t simpleProfileAttrTbl[] = {
         GATT_PERMIT_READ,
         0,
         simpleProfileChar5UserDesp},
+*/
 };
 
 /*********************************************************************
@@ -648,6 +649,11 @@ static bStatus_t simpleProfile_WriteAttrCB(uint16_t connHandle, gattAttribute_t 
                 if(status == SUCCESS)
                 {
                     tmos_memcpy(pAttr->pValue, pValue, SIMPLEPROFILE_CHAR1_LEN);
+                    if (*pValue != 0) { //记得解引用
+                        GPIOA_SetBits(GPIO_Pin_9);
+                    } else {
+                        GPIOA_ResetBits(GPIO_Pin_9);
+                    }
                     notifyApp = SIMPLEPROFILE_CHAR1;
                 }
                 break;

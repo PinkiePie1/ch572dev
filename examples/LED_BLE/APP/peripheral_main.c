@@ -52,9 +52,6 @@ void Main_Circulation()
  */
 int main(void)
 {
-#if(defined(DCDC_ENABLE)) && (DCDC_ENABLE == TRUE)
-    PWR_DCDCCfg(ENABLE);
-#endif
     HSECFG_Capacitance(HSECap_18p);
     SetSysClock(CLK_SOURCE_HSE_PLL_100MHz);
 #if(defined(HAL_SLEEP)) && (HAL_SLEEP == TRUE)
@@ -69,6 +66,7 @@ int main(void)
     PRINT("%s\n", VER_LIB);
     CH57x_BLEInit();
     HAL_Init();
+    GPIOA_ModeCfg(GPIO_Pin_9,GPIO_ModeOut_PP_20mA);
     GAPRole_PeripheralInit();
     Peripheral_Init();
     Main_Circulation();

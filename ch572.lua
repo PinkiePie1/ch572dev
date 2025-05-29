@@ -22,7 +22,7 @@ option_end()
 
 
 target("ch572")
-	set_kind("static")
+	set_kind("object")
 
 	--库文件
 	add_files("CH572libs/StdPeriphDriver/*.c")
@@ -33,6 +33,7 @@ target("ch572")
 	    "CH572libs/StdPeriphDriver/inc",
 	    "CH572libs/Startup",
 	    "CH572libs/RVMSIS",
+		"CH572libs/BLELIB",
 	    {public = true}
 	    )
 	    
@@ -48,31 +49,38 @@ target("ch572")
 	    "-ffunction-sections",
 	    "-fdata-sections",
 	    "-fno-common",
+		"--param=highcode-gen-section-name=1",
+		"-UDEBUG",
 	    "-Os"
 	}
 
 	
 
 	add_ldflags(
-	    table.unpack(arch_flags),
+	    arch_flags,
 	    "-nostartfiles",
 	    "-Xlinker --gc-sections",
 	    "-Xlinker --print-memory-usage",
-	    "-Wl,-Map=build/ch572_blink.map",
+	    "-Wl,-Map=build/ch572.map",
 	    "--specs=nano.specs",
 	    "--specs=nosys.specs",
-	    "-Wl,--wrap=memcpy",
+--	    "-Wl,--wrap=memcpy",
 	    "-LCH572libs/StdPeriphDriver",
+		"-LCH572libs/BLELIB",
 	    "-L../",
+		"-lm",
+		"-lISP572",
 --	    "-T", "$(ldfile)",
-	    "-lprintf"
+	    "-lprintf",
+		{force = true}
 
 	)
 	
 	set_policy("check.auto_ignore_flags", false)
 
-	add_cflags(table.unpack(arch_flags))
-	add_asflags(table.unpack(arch_flags), "-x", "assembler-with-cpp")
+	add_cflags(arch_flags)
+	add_cflags("-UDEBUG", "-std=gnu17")
+	add_asflags(arch_flags, "-x", "assembler-with-cpp")
 
 
 target("ch572ble")

@@ -39,7 +39,7 @@
 #define SBP_PHY_UPDATE_DELAY                 2400
 
 // What is the advertising interval when device is discoverable (units of 625us, 80=50ms)
-#define DEFAULT_ADVERTISING_INTERVAL         80
+#define DEFAULT_ADVERTISING_INTERVAL         1600
 
 // Limited discoverable mode advertises for 30.72s, and then stops
 // General discoverable mode advertises indefinitely
@@ -49,13 +49,13 @@
 #define DEFAULT_DESIRED_MIN_CONN_INTERVAL    6
 
 // Maximum connection interval (units of 1.25ms, 100=125ms)
-#define DEFAULT_DESIRED_MAX_CONN_INTERVAL    100
+#define DEFAULT_DESIRED_MAX_CONN_INTERVAL    50
 
 // Slave latency to use parameter update
 #define DEFAULT_DESIRED_SLAVE_LATENCY        0
 
 // Supervision timeout value (units of 10ms, 100=1s)
-#define DEFAULT_DESIRED_CONN_TIMEOUT         100
+#define DEFAULT_DESIRED_CONN_TIMEOUT         200
 
 // Company Identifier: WCH
 #define WCH_COMPANY_ID                       0x07D7
@@ -85,9 +85,9 @@ static uint8_t Peripheral_TaskID = INVALID_TASK_ID; // Task ID for internal task
 static uint8_t scanRspData[] = {
     // complete name
     0x12, // length of this data
-    GAP_ADTYPE_LOCAL_NAME_COMPLETE,
-    'S',
-    'i',
+    0x09,
+    's',
+    'l',
     'm',
     'p',
     'l',
@@ -127,6 +127,10 @@ static uint8_t advertData[] = {
     GAP_ADTYPE_FLAGS,
     DEFAULT_DISCOVERABLE_MODE | GAP_ADTYPE_FLAGS_BREDR_NOT_SUPPORTED,
 
+    0x08, // length of this data
+    0x09, //complete name
+    'w','i','l','d','c','a','t',
+
     // service UUID, to notify central devices what services are included
     // in this peripheral
     0x03,                  // length of this data
@@ -136,7 +140,7 @@ static uint8_t advertData[] = {
 };
 
 // GAP GATT Attributes
-static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "Simple Peripheral";
+static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "wildcat";
 
 // Connection item list
 static peripheralConnItem_t peripheralConnList;
@@ -213,7 +217,7 @@ void Peripheral_Init()
 
         // Set the GAP Role Parameters
         GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &initial_advertising_enable);
-        GAPRole_SetParameter(GAPROLE_SCAN_RSP_DATA, sizeof(scanRspData), scanRspData);
+        //GAPRole_SetParameter(GAPROLE_SCAN_RSP_DATA, sizeof(scanRspData), scanRspData);
         GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
         GAPRole_SetParameter(GAPROLE_MIN_CONN_INTERVAL, sizeof(uint16_t), &desired_min_interval);
         GAPRole_SetParameter(GAPROLE_MAX_CONN_INTERVAL, sizeof(uint16_t), &desired_max_interval);
