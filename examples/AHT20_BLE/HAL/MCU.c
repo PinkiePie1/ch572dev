@@ -19,8 +19,8 @@
 tmosTaskID halTaskID;
 uint32_t g_LLE_IRQLibHandlerLocation;
 
-uint32_t temperature = 777;
-uint32_t humid = 777;
+uint32_t temperature = 7777;
+uint32_t humid = 7777;
 uint8_t rawData[6] = {0};
 
 #if(defined(BLE_SNV)) && (BLE_SNV == TRUE)
@@ -185,20 +185,27 @@ tmosEvents HAL_ProcessEvent(tmosTaskID task_id, tmosEvents events)
         if(events & HAL_TEMP_GET)
     {
 		AHT20_getDat(rawData);
-		humid = ((uint32_t) rawData[1] << 12) | 
-		((uint32_t) rawData[2] << 4) | 
-		((uint32_t) rawData[3] >> 4) ;
+		
+		humid = rawData[1];
+		humid <<= 8; 
+		humid |= rawData[2];
+		humid <<= 8; 
+		humid |= (rawData[3] & 0xF0);
+		humid >>= 4;
 		humid = humid * 1000; //if humid = 777, then its 77.7%.
-		humid = humid >> 20;
+		humid >>= 20;
 
-		temperature = (((uint32_t)rawData[4] & 0x0F) << 16) | 
-		((uint32_t) rawData[5] << 8) | 
-		(uint32_t) rawData[6];
-		temperature = temperature * 2000; //if temp =244, then its 24.4
+		temperature = 0;
+		temperature = rawData[3] & 0x0F;
+		temperature <<= 8;
+		temperature |= rawData[4];
+		temperature <<= 8;
+		temperature |= rawData[5];
+		temperature = temperature * 2000; //if temp =2444, then its 24.44
 		temperature = temperature >> 20;
 		temperature = temperature - 500;
 		
-		tmos_start_task(Peripheral_TaskID,ADV_DATA_UPDATE_EVT, 100);
+		tmos_set_event(Peripheral_TaskID,ADV_DATA_UPDATE_EVT);
     	return events ^ HAL_TEMP_GET;
     }
     if(events & HAL_REG_INIT_EVENT)
@@ -238,7 +245,7 @@ void HAL_Init()
 //    tmos_start_task( halTaskID, HAL_TEST_EVENT, 1600 );    // ����һ����������
 	//SET VCC of AHT on here!
 	SoftI2CInit();
-	tmos_start_task(halTaskID, HAL_TEMP_STARTMEASURE, MS1_TO_SYSTEM_TIME(100));
+	tmos_start_task(halTaskID, HAL_TEMP_STARTMEASURE, MS1_TO_SYSTEM_TIME(300));
 	
 }
 

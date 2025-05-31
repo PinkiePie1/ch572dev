@@ -361,12 +361,13 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
     if(events & ADV_DATA_UPDATE_EVT)
     {	
     	GPIOA_InverseBits(GPIO_Pin_9);
-    	advertData[16] = rawData[0];
-    	advertData[17] = rawData[1];
-    	advertData[18] = rawData[2];
-    	advertData[19] = rawData[3];
-    	advertData[20] = rawData[4];
-    	advertData[21] = rawData[5];
+    	
+    	advertData[16] = ( (humid/100) << 4) | ( (humid%100) / 10 );
+    	advertData[17] = ( (humid%10) << 4 );
+    	advertData[18] = 0;
+    	advertData[19] = ( (temperature/100) << 4 ) | ((temperature%100) / 10);
+    	advertData[20] = ( (temperature%10) << 4 );
+    	advertData[21] = 0;
 		GAP_UpdateAdvertisingData( Peripheral_TaskID, TRUE ,sizeof(advertData),advertData );
     	return (events ^ ADV_DATA_UPDATE_EVT);
     }
