@@ -102,14 +102,16 @@ uint8_t advertData[] = {
 
     // service UUID, to notify central devices what services are included
     // in this peripheral
-    0x07,                  // length of this data
+    0x09,                  // length of this data
 	0xFF,
 	0xFF,
-	0x01, //[15]
+	0xFF, //[15]
 	0x00, //[16]
 	0x00,
 	0x00,
-	0x00  //[19] 
+	0x00,  //[19]
+	0x00,
+	0x00,  //[21] 
 };
 
 // GAP GATT Attributes
@@ -359,9 +361,12 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
     if(events & ADV_DATA_UPDATE_EVT)
     {	
     	GPIOA_InverseBits(GPIO_Pin_9);
-    	advertData[16] = advertData[16]+1;
-    	advertData[17] = (uint8_t)(temperature/10);
-    	advertData[18] = rawData[4];
+    	advertData[16] = rawData[0];
+    	advertData[17] = rawData[1];
+    	advertData[18] = rawData[2];
+    	advertData[19] = rawData[3];
+    	advertData[20] = rawData[4];
+    	advertData[21] = rawData[5];
 		GAP_UpdateAdvertisingData( Peripheral_TaskID, TRUE ,sizeof(advertData),advertData );
     	return (events ^ ADV_DATA_UPDATE_EVT);
     }

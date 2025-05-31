@@ -9,6 +9,16 @@ void SoftI2CInit()
 	SCL_HIGH;
 	R32_PA_SET |= VCC_PIN;//VCC开始输出。
 
+
+
+	I2CStart();
+    I2C_Write( (0x38<<1)|0 );//地址加写命令
+    I2C_Write( 0xE1 ); //设置命令
+    I2C_Write( 0x08 ); //进行校准
+    I2C_Write( 0x00 ); //进行校准
+    I2CStop();
+    //Delay_Ms(300); //校准需要300ms
+
 }
 
 void I2CStart()
@@ -66,13 +76,12 @@ uint8_t I2C_Read(uint8_t ack)
 {
 	uint8_t data = 0;
 	SDA_HIGH;
-	for (uint8_t i = 0; i<8;i++)
+	for (uint8_t i = 0; i < 8 ; i++ )
 	{
-
+		data = (data << 1);
 		SCL_HIGH;
 		if(READ_SDA() == 0){;}
 		else{data |= 0x01;}
-		data = (data << 1);
 		SCL_LOW;
 		I2CDelayUs(1);
 		
@@ -89,7 +98,7 @@ uint8_t I2C_Read(uint8_t ack)
 	SCL_HIGH;
 	I2CDelayUs(1);
 	SCL_LOW;
-	I2CDelayUs(1);
+	SDA_HIGH;
 	return data;
 
 }
@@ -97,6 +106,7 @@ uint8_t I2C_Read(uint8_t ack)
 
 void AHT20_beginMeasure(void)
 {
+	
 	I2CStart();
     I2C_Write( (0x38<<1)|0 );//地址加写命令
     I2C_Write( 0xAC ); //触发测量
