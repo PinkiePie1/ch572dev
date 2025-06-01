@@ -19,8 +19,8 @@
 tmosTaskID halTaskID;
 uint32_t g_LLE_IRQLibHandlerLocation;
 
-uint32_t temperature = 7777;
-uint32_t humid = 7777;
+uint32_t temperature = 0;
+uint32_t humid = 0;
 uint8_t rawData[6] = {0};
 
 #if(defined(BLE_SNV)) && (BLE_SNV == TRUE)
@@ -192,8 +192,11 @@ tmosEvents HAL_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 		humid <<= 8; 
 		humid |= (rawData[3] & 0xF0);
 		humid >>= 4;
-		humid = humid * 1000; //if humid = 777, then its 77.7%.
-		humid >>= 20;
+		humid = (humid >> 7)+
+		(humid >> 10)+
+		(humid >> 11)+
+		(humid >> 12)+
+		(humid >> 16);
 
 		temperature = 0;
 		temperature = rawData[3] & 0x0F;
@@ -201,9 +204,14 @@ tmosEvents HAL_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 		temperature |= rawData[4];
 		temperature <<= 8;
 		temperature |= rawData[5];
-		temperature = temperature * 2000; //if temp =2444, then its 24.44
-		temperature = temperature >> 20;
-		temperature = temperature - 500;
+		temperature = (temperature >> 6) + 
+					(temperature >> 9) +
+					(temperature >> 10) +
+					(temperature >> 11) +
+					(temperature >> 15) ;
+		; // what we need is tem*20000/2^20-5000,so bit 6 9 10 11 15
+		                                
+		temperature = temperature - 5000;
 		
 		tmos_set_event(Peripheral_TaskID,ADV_DATA_UPDATE_EVT);
     	return events ^ HAL_TEMP_GET;
