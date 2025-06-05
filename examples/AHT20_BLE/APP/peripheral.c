@@ -41,7 +41,7 @@
 #define SBP_PHY_UPDATE_DELAY                 2400
 
 // What is the advertising interval when device is discoverable (units of 625us, 80=50ms)
-#define DEFAULT_ADVERTISING_INTERVAL         320
+#define DEFAULT_ADVERTISING_INTERVAL        4800
 
 // Limited discoverable mode advertises for 30.72s, and then stops
 // General discoverable mode advertises indefinitely
@@ -211,7 +211,7 @@ void Peripheral_Init()
         GAP_SetParamValue(TGAP_ADV_SCAN_REQ_NOTIFY, DISABLE);
     }
 
-    // Setup the GAP Bond Manager
+ /*   // Setup the GAP Bond Manager
     {
         uint32_t passkey = 0; // passkey "000000"
         uint8_t  pairMode = GAPBOND_PAIRING_MODE_WAIT_FOR_REQ;
@@ -253,7 +253,7 @@ void Peripheral_Init()
 
     // Register callback with SimpleGATTprofile
     SimpleProfile_RegisterAppCBs(&Peripheral_SimpleProfileCBs);
-
+*/
     // Register receive scan request callback
     GAPRole_BroadcasterSetCB(&Broadcaster_BroadcasterCBs);
 

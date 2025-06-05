@@ -15,7 +15,7 @@ target("AHTBLE")
 	)
 	check_ld()
 
-add_ldflags(
-	"-lCH572BLE_PERI",	
-	{force = true}
-)
+	add_ldflags(
+		"-lCH572BLE_PERI",	
+		{force = true}
+	)

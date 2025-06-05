@@ -25,6 +25,9 @@
 
 #include "CH57x_common.h"
 #define  HAL_SLEEP TRUE
+#define BLE_CALIBRATION_ENABLE FALSE
+#define TEM_SAMPLE FALSE
+#define BLE_SNV FALSE
 
 /*********************************************************************
  ��MAC��

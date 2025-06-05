@@ -11,12 +11,10 @@ void SoftI2CInit()
 
 
 
-	I2CStart();
-    I2C_Write( (0x38<<1)|0 );//地址加写命令
-    I2C_Write( 0xE1 ); //设置命令
-    I2C_Write( 0x08 ); //进行校准
-    I2C_Write( 0x00 ); //进行校准
-    I2CStop();
+//	I2CStart();
+//    I2C_Write( (0x38<<1)|0 );//地址加写命令
+//     //设置命令
+//    I2CStop();
     //Delay_Ms(300); //校准需要300ms
 
 }
