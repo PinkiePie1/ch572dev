@@ -40,12 +40,14 @@
 #include <stdio.h>
 #endif
 
-
+#ifdef  DEBUG
+#define PRINT(X...) printf(X)
+#else
 #define PRINT(X...)
-
+#endif
 
 /**
- * @brief  系统锟斤拷频时锟接ｏ拷Hz锟斤拷
+ * @brief  系统主频时钟（Hz）
  */
 #ifndef	 FREQ_SYS
 #define  FREQ_SYS		100000000
@@ -76,7 +78,7 @@
 #include "ISP572.h"
 
  /**
-  * @brief  LSI时锟接ｏ拷Hz锟斤拷
+  * @brief  LSI时钟（Hz）
   */
  extern uint32_t Freq_LSI;
 
