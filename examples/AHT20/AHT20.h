@@ -16,7 +16,7 @@
 #define SCL_HIGH R32_PA_SET |= SCL_PIN
 #define READ_SDA() (R32_PA_PIN & SDA_PIN)
 
-#define I2CDelayUs(x) __NOP();
+#define I2CDelayUs(x) __nop();
 
 void SoftI2CInit(void);
 void I2CStart(void);
