@@ -1,7 +1,7 @@
 /********************************** (C) COPYRIGHT ******************************
 * File Name         : CH572rf.h
 * Author            : WCH
-* Version           : V1.00
+* Version           : V1.10
 * Date              : 2024/11/07
 * Description       : head file(ch572/ch570)
  *
@@ -34,7 +34,7 @@ typedef void (*pfnRfRoleProcess)( rfRole_States_t status, uint8_t id );
 /*********************************************************************
  * GLOBAL MACROS
  */
-#define  VER_RF_FILE            "CH57x_RF_BASIC_LIB_V1.0"
+#define  VER_RF_FILE            "CH57x_RF_BASIC_LIB_V1.1"
 extern const uint8_t VER_RF_LIB[];  // LIB version
 
 /* takes a byte out of a uint32_t : var - uint32_t,  ByteNum - byte to take out (0 - 3) */
@@ -113,10 +113,10 @@ typedef struct
 {
     pfnRfRoleProcess rfProcessCB;
     uint32_t processMask;
-#define    RF_STATE_RX             (1<<0)
-#define    RF_STATE_TIMEOUT        (1<<2)
-#define    RF_STATE_RX_CRCERR      (1<<3)
-#define    RF_STATE_TX_FINISH      (1<<4)
+#define    RF_STATE_RX             (1<<0) // Receive packet.
+#define    RF_STATE_TIMEOUT        (1<<2) // Transmit timeout,or received timeout(set timeout or Access address matching receiving timeout).
+#define    RF_STATE_RX_CRCERR      (1<<3) // Received a packet with a CRC error.
+#define    RF_STATE_TX_FINISH      (1<<4) // Transmit packet.
 } rfRoleConfig_t;
 
 
@@ -150,7 +150,7 @@ typedef union {
 typedef struct
 {
     uint32_t accessAddress;       //!< access address,32bit PHY address
-    uint8_t accessAddressEx;
+    uint8_t accessAddressEx;      //!< access address,The high 8 bits in the 40-bit address mode.
     uint32_t crcInit;             //!< crc initial value
     uint32_t frequency;           //!< rf frequency (2400000kHz-2483500kHz)
     uint32_t properties;          //!< bit0: 0-whitening on 1-whitening off
@@ -178,7 +178,7 @@ typedef struct
 typedef struct
 {
     uint32_t accessAddress;       //!< access address,32bit PHY address
-    uint8_t accessAddressEx;
+    uint8_t accessAddressEx;      //!< access address,The high 8 bits in the 40-bit address mode.
     uint32_t crcInit;             //!< crc initial value
     uint32_t frequency;           //!< rf frequency (2400000kHz-2483500kHz)
     uint32_t properties;          //!< bit0: 0-whitening on 1-whitening off
@@ -197,7 +197,7 @@ typedef struct
     uint32_t rxDMA;               //!< Rx DMA address
     uint8_t whiteChannel;         //!< white channel(properties bit2 = 1)
     uint8_t rxMaxLen;             //!< 2.4G nondpl mode: The length of Rx data  other mode: The maximum length of Rx data
-    uint16_t timeOut;             //!< Rx wait timeout,0:No timeout others: N*0.5us
+    uint32_t timeOut;             //!< Rx wait timeout,0:No timeout others: N*0.5us
     uint32_t crcPoly;             //!< crc poly value
 } rfipRx_t;
 
@@ -230,6 +230,15 @@ void BB_LibIRQHandler( void );
  * @return  the value of crc state.
  */
 uint8_t RFIP_ReadCrc( void );
+
+/**
+ * @brief   set output power level@ TxPower
+ *
+ * @param   None.
+ *
+ * @return  the value of crc state.
+ */
+void RFIP_SetTxPower( uint8_t val );
 
 /**
  * @brief   used to stop
@@ -268,6 +277,24 @@ void RFIP_Calibration( void );
 void RFIP_WakeUpRegInit( void );
 
 /**
+ * @brief   rf mode single channel mode.
+ *
+ * @param   ch - rf channel,f=2402+ch*2 MHz, ch=0,...,39
+ *
+ * @return  0 - success, 1- phy busy
+ */
+bStatus_t RFIP_SingleChannel( uint8_t ch );
+
+/**
+ * @brief   used to stop single channel mode.
+ *
+ * @param   None.
+ *
+ * @return  None.
+ */
+void RFIP_TestEnd( void );
+
+/**
  * @brief   Basic mode init
  *
  * @param	
@@ -279,7 +306,7 @@ bStatus_t RFRole_BasicInit( rfRoleConfig_t *pConf );
 /**
  * @brief  set tx parameter and start rf
  *
- * @param  pParm - rfip tx parameter
+ * @param  pParm - rfip rx parameter
  *
  * @return  0-success.
  */
