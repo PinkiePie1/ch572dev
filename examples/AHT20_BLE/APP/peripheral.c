@@ -45,7 +45,7 @@
 
 // Limited discoverable mode advertises for 30.72s, and then stops
 // General discoverable mode advertises indefinitely
-#define DEFAULT_DISCOVERABLE_MODE            GAP_ADTYPE_FLAGS_GENERAL
+#define DEFAULT_DISCOVERABLE_MODE            GAP_ADTYPE_FLAGS_GENERAL | GAP_ADTYPE_FLAGS_BREDR_NOT_SUPPORTED
 
 // Minimum connection interval (units of 1.25ms, 6=7.5ms)
 #define DEFAULT_DESIRED_MIN_CONN_INTERVAL    6
@@ -115,7 +115,7 @@ uint8_t advertData[] = {
 };
 
 // GAP GATT Attributes
-static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "wildcat";
+static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "tempcat";
 
 // Connection item list
 static peripheralConnItem_t peripheralConnList;
@@ -186,29 +186,19 @@ void Peripheral_Init()
 
     // Setup the GAP Peripheral Role Profile
     {
-        uint8_t  initial_advertising_enable = TRUE;
+        
+        uint8_t  advertising_disable = FALSE;
         uint16_t desired_min_interval = DEFAULT_DESIRED_MIN_CONN_INTERVAL;
         uint16_t desired_max_interval = DEFAULT_DESIRED_MAX_CONN_INTERVAL;
         uint8_t  advType = GAP_ADTYPE_ADV_NONCONN_IND;
 
         // Set the GAP Role Parameters
-        GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &initial_advertising_enable);
+        GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &advertising_disable);
         //GAPRole_SetParameter(GAPROLE_SCAN_RSP_DATA, sizeof(scanRspData), scanRspData);
         GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
-        GAPRole_SetParameter(GAPROLE_MIN_CONN_INTERVAL, sizeof(uint16_t), &desired_min_interval);
-        GAPRole_SetParameter(GAPROLE_MAX_CONN_INTERVAL, sizeof(uint16_t), &desired_max_interval);
+        //GAPRole_SetParameter(GAPROLE_MIN_CONN_INTERVAL, sizeof(uint16_t), &desired_min_interval);
+        //GAPRole_SetParameter(GAPROLE_MAX_CONN_INTERVAL, sizeof(uint16_t), &desired_max_interval);
 		GAPRole_SetParameter(GAPROLE_ADV_EVENT_TYPE,sizeof(uint8_t),&advType);//not connectable
-    }
-
-    {
-        uint16_t advInt = DEFAULT_ADVERTISING_INTERVAL;
-
-        // Set advertising interval
-        GAP_SetParamValue(TGAP_DISC_ADV_INT_MIN, advInt);
-        GAP_SetParamValue(TGAP_DISC_ADV_INT_MAX, advInt);
-
-        // no scan response.
-        GAP_SetParamValue(TGAP_ADV_SCAN_REQ_NOTIFY, DISABLE);
     }
 
  /*   // Setup the GAP Bond Manager
@@ -258,7 +248,7 @@ void Peripheral_Init()
     GAPRole_BroadcasterSetCB(&Broadcaster_BroadcasterCBs);
 
     // Setup a delayed profile startup
-    tmos_set_event(Peripheral_TaskID, SBP_START_DEVICE_EVT);
+    tmos_start_task(Peripheral_TaskID, SBP_START_DEVICE_EVT,1500);
 }
 
 /*********************************************************************
@@ -312,6 +302,16 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
     if(events & SBP_START_DEVICE_EVT)
     {
         // Start the Device
+        uint8_t  initial_advertising_enable = TRUE;
+        GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &initial_advertising_enable);
+        uint16_t advInt = DEFAULT_ADVERTISING_INTERVAL;
+
+        // Set advertising interval
+        GAP_SetParamValue(TGAP_DISC_ADV_INT_MIN, advInt);
+        GAP_SetParamValue(TGAP_DISC_ADV_INT_MAX, advInt);
+
+        // no scan response.
+        GAP_SetParamValue(TGAP_ADV_SCAN_REQ_NOTIFY, DISABLE);
         GAPRole_PeripheralStartDevice(Peripheral_TaskID, &Peripheral_BondMgrCBs, &Peripheral_PeripheralCBs);
         return (events ^ SBP_START_DEVICE_EVT);
     }

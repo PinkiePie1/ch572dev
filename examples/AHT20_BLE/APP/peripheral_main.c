@@ -53,7 +53,7 @@ void Main_Circulation()
  */
 int main(void)
 {
-    HSECFG_Capacitance(HSECap_18p);
+    HSECFG_Capacitance(HSECap_12p);
     SetSysClock(CLK_SOURCE_HSE_PLL_100MHz);
 
 #if(defined(HAL_SLEEP)) && (HAL_SLEEP == TRUE)
