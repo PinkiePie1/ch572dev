@@ -253,7 +253,7 @@ void HAL_Init()
 //    tmos_start_task( halTaskID, HAL_TEST_EVENT, 1600 );    // ����һ����������
 	//SET VCC of AHT on here!
 	SoftI2CInit();
-	tmos_start_task(halTaskID, HAL_TEMP_STARTMEASURE, MS1_TO_SYSTEM_TIME(300));
+	tmos_start_task(halTaskID, HAL_TEMP_STARTMEASURE, MS1_TO_SYSTEM_TIME(10));
 	
 }
 

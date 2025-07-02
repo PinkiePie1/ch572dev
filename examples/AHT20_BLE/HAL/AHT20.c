@@ -4,9 +4,12 @@
 void SoftI2CInit()
 {
 	R32_PA_PU |= SDA_PIN;//SDA开启上拉电阻，变为上拉输入模式
+	R32_PA_PU &= ~(VCC_PIN);// disable VCC pullup
+	R32_PA_PD_DRV |= VCC_PIN;
 	SCL_HIGH;
 	R32_PA_SET |= VCC_PIN;//VCC输出
 	R32_PA_DIR |= SCL_PIN|VCC_PIN;//SCL和VCC输出
+
 
 
 
