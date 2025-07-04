@@ -12,21 +12,11 @@
 #include "AHT20.h"
 __attribute__((aligned(4))) uint8_t imageCache[2888] = {0};//显存，为了提高memcpy的速度需要四字节对齐。
 
-//和memset
-static inline void mymemset(void *dest, int c, size_t n) { unsigned char *s = dest; for (; n; n--, s+=4) *s = c; }
-
-static void GPIOInit(void)
-{
-	EPD_Hal_Init();
-	GPIOA_ModeCfg(GPIO_Pin_9,GPIO_ModeOut_PP_5mA);
-	GPIOA_SetBits(GPIO_Pin_9);
-}
 
 void main(void)
 {
     HSECFG_Capacitance(HSECap_18p);
     SetSysClock(CLK_SOURCE_HSE_PLL_100MHz);
-	GPIOInit();
 	SoftI2CInit();
 	uint8_t rawData[9];
 	uint32_t humid;
@@ -34,7 +24,7 @@ void main(void)
 
 	AHT20_beginMeasure();
 
-	DelayMs(40);
+	DelayMs(45);
 	AHT20_getDat(rawData);
 	humid = rawData[1];
 	humid <<= 8; 
@@ -64,9 +54,8 @@ void main(void)
 
 	paint_SetImageCache(imageCache);
 	EPD_Printf(10,150,font14,BLACK,"TMP: %d, HUM: %d.",temperature,humid);
-	drawStr(50,150,"test 1",font14,WHITE);
+//	drawStr(50,150,"test 1",font14,WHITE);
 	
-
 	EPD_Init();	
 	EPD_SendDisplay(imageCache);
 	EPD_Sleep();

@@ -14,6 +14,7 @@ toolchain("wch-riscv-gcc")
     set_toolset("objdump", "riscv-wch-elf-objdump")
 toolchain_end()
 
+
 option("ldfile")
 	set_default("CH572Libs/Ld/Link.ld")
 	set_showmenu(true)
@@ -40,9 +41,10 @@ target("ch572")
 	local arch_flags = {
 	    "-march=rv32imc_zba_zbb_zbc_zbs_xw",
 	    "-mabi=ilp32",
+	    "-mtune=size",
 	    "-mcmodel=medany",
 	    "-msmall-data-limit=8",
-	    "-msave-restore",
+	    "-mno-save-restore",
 	    "-fmax-errors=20",
 	    "-fmessage-length=0",
 	    "-fsigned-char",
@@ -50,6 +52,7 @@ target("ch572")
 	    "-fdata-sections",
 	    "-fno-common",
 		"--param=highcode-gen-section-name=1",
+		"-g",
 		"-UDEBUG",
 	    "-Os"
 	}
