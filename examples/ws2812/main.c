@@ -33,11 +33,29 @@ void main(void)
 		0x00,
 		0x0F
 	};
+
+	uint8_t dat2[9] = {
+		0x00,
+		0x0F,
+		0x00,
+		0x00,
+		0x00,
+		0x0F,
+		0x0F,
+		0x00,
+		0x00
+	};
 	while(1)
 	{
 		int i = 16;
 		do{
 		WS2812BSimpleSend(GPIO_Pin_9,dat,9);
+		} while (i--);
+		DelayMs(1500);
+		
+		i = 16;
+		do{
+		WS2812BSimpleSend(GPIO_Pin_9,dat2,9);
 		} while (i--);
 		DelayMs(1500);
 	}
