@@ -80,6 +80,7 @@ uint8_t I2C_Read(uint8_t ack)
 	{
 		data = (data << 1);
 		SCL_HIGH;
+		I2CDelayUs(1);
 		if(READ_SDA() == 0){;}
 		else{data |= 0x01;}
 		SCL_LOW;
@@ -125,6 +126,7 @@ void AHT20_getDat(uint8_t *data)
 	data[2] = I2C_Read(1);
 	data[3] = I2C_Read(1);
 	data[4] = I2C_Read(1);
-	data[5] = I2C_Read(0);
+	data[5] = I2C_Read(1);
+	data[6] = I2C_Read(0);
     I2CStop();
 }

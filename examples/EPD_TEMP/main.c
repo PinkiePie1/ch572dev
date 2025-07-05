@@ -15,17 +15,35 @@ __attribute__((aligned(4))) uint8_t imageCache[2888] = {0};//显存，为了提�
 
 void main(void)
 {
+	uint8_t rawData[9];
+	uint32_t humid = 0;
+	uint32_t temperature = 0;
+
     HSECFG_Capacitance(HSECap_18p);
     SetSysClock(CLK_SOURCE_HSE_PLL_100MHz);
+    EPD_Hal_Init();
+
+
+
+
+	EPD_Init();	
+	EPD_Sleep();
+
+    R16_PIN_ALTERNATE = 0;
+    GPIOA_ModeCfg(GPIO_Pin_1,GPIO_ModeOut_PP_5mA);
+    GPIOA_SetBits(GPIO_Pin_1);
+	GPIOA_ModeCfg(GPIO_Pin_8 | GPIO_Pin_9, GPIO_ModeIN_PU);
+
 	SoftI2CInit();
-	uint8_t rawData[9];
-	uint32_t humid;
-	uint32_t temperature;
+
+	DelayMs(15);
 
 	AHT20_beginMeasure();
 
-	DelayMs(45);
+
+	DelayMs(50);
 	AHT20_getDat(rawData);
+
 	humid = rawData[1];
 	humid <<= 8; 
 	humid |= rawData[2];
@@ -53,11 +71,17 @@ void main(void)
 	temperature = temperature - 5000;
 
 	paint_SetImageCache(imageCache);
-	EPD_Printf(10,150,font14,BLACK,"TMP: %d, HUM: %d.",temperature,humid);
-//	drawStr(50,150,"test 1",font14,WHITE);
+	EPD_Printf(10,150,font14,BLACK,"TMP %d HUM: %d.",temperature,humid);
+	EPD_Printf(40,150,font14,BLACK,"DAT:%02X,%02X,%02X,%02X,%02X,%02X,%02X",
+		rawData[0],rawData[1],rawData[2],rawData[3],rawData[4],rawData[5],rawData[6]);
+
 	
 	EPD_Init();	
 	EPD_SendDisplay(imageCache);
+	GPIOA_ITModeCfg(EPD_BUSY_PIN, GPIO_ITMode_FallEdge);
+    PFIC_EnableIRQ(GPIO_A_IRQn);
+    PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_GPIO_WAKE, Fsys_Delay_4096);
+	LowPower_Sleep( RB_PWR_RAM12K | RB_PWR_EXTEND | RB_PWR_LDO5V_EN);
 	EPD_Sleep();
 
 	DelayMs(30000);
@@ -69,10 +93,6 @@ void main(void)
 
 	while(1)
 	{
-		GPIOA_SetBits(GPIO_Pin_9);
-		DelayMs(500);
-		GPIOA_ResetBits(GPIO_Pin_9);
-		DelayMs(500);
 	}
 	
 	

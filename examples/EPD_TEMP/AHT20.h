@@ -15,7 +15,7 @@
 #define SDA_HIGH (R32_PA_DIR &= ~(SDA_PIN))//变为输入上拉
 #define SCL_LOW  R32_PA_CLR |= SCL_PIN
 #define SCL_HIGH R32_PA_SET |= SCL_PIN
-#define READ_SDA() (R32_PA_PIN & SDA_PIN)
+#define READ_SDA() (R32_PA_PIN & (SDA_PIN))
 
 #define I2CDelayUs(x) DelayUs(x)
 
