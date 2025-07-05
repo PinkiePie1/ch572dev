@@ -71,12 +71,11 @@ int main(void)
 
 	//disable debug and output VCC to AHT20.
     R16_PIN_ALTERNATE = 0;
-    GPIOA_ModeCfg(GPIO_Pin_1,GPIO_ModeOut_PP_5mA);
+    GPIOA_ModeCfg(GPIO_Pin_1,GPIO_ModeOut_PP_20mA);
     GPIOA_SetBits(GPIO_Pin_1);
 	GPIOA_ModeCfg(GPIO_Pin_8 | GPIO_Pin_9, GPIO_ModeIN_PU);
 
     GAPRole_PeripheralInit();
-    //GAPRole_BroadcasterInit();
     Peripheral_Init();
     Main_Circulation();
 }

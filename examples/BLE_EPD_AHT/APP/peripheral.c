@@ -187,10 +187,9 @@ void Peripheral_Init()
 
         // Set the GAP Role Parameters
         GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &initial_advertising_enable);
-		GAPRole_SetParameter(GAPROLE_ADV_EVENT_TYPE, sizeof(uint8_t), &initial_adv_event_type);
+        GAPRole_SetParameter(GAPROLE_ADV_EVENT_TYPE, sizeof(uint8_t), &initial_adv_event_type);
         GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
-//        GAPRole_SetParameter(GAPROLE_MIN_CONN_INTERVAL, sizeof(uint16_t), &desired_min_interval);
-//        GAPRole_SetParameter(GAPROLE_MAX_CONN_INTERVAL, sizeof(uint16_t), &desired_max_interval);
+
     }
 
     {
@@ -209,10 +208,10 @@ void Peripheral_Init()
 
 
     EPD_Hal_Init();
-	EPD_Init();	
-	EPD_Sleep();
-	SoftI2CInit();
-	tmos_start_task(Peripheral_TaskID, AHT_BEGIN_MEAS_EVT,40);
+    EPD_Init();	
+    EPD_Sleep();
+    SoftI2CInit();
+    tmos_start_task(Peripheral_TaskID, AHT_BEGIN_MEAS_EVT,40);
 	
 
 }
