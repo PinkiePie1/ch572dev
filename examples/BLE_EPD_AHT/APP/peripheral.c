@@ -26,6 +26,7 @@ uint8_t rawData[9];
 uint32_t humid;
 uint32_t temperature;
 uint8_t *imageCache;
+uint8_t refreshCount = 250;
 
 /*********************************************************************
  * MACROS
@@ -206,13 +207,7 @@ void Peripheral_Init()
 
 	tmos_set_event(Peripheral_TaskID, SBP_START_DEVICE_EVT);
 
-	imageCache = malloc(2888);
-	if(imageCache != NULL)
-	{
-		memset(imageCache,0x00,2888);
-	}
-	
-	paint_SetImageCache(imageCache);
+
     EPD_Hal_Init();
 	EPD_Init();	
 	EPD_Sleep();
@@ -324,9 +319,30 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
 		GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
 
 		//print to screen
-		EPD_Printf(10,150,font14,BLACK,"TMP %04d HUM %04d",temperature,humid);
-		EPD_Init();	
-		EPD_SendDisplay(imageCache);
+		imageCache = malloc(2888);
+		if(imageCache != NULL)
+		{
+			memset(imageCache,0x00,2888);
+		}
+		
+		paint_SetImageCache(imageCache);
+		
+		EPD_Printf(10,150,font14,BLACK,"TEMP: %02d.%02d C",temperature/100,temperature%100);
+		EPD_Printf(25,150,font14,BLACK,"HUMIDITY: %02d.%02d %%",humid/100,humid%100);
+
+		//send dispaly data, partial refresh 8 times.
+		if(refreshCount < 8)
+		{	
+			EPD_PartialDisplay(imageCache);
+			refreshCount++;
+		}
+		else
+		{
+			EPD_Init();	
+			EPD_SendDisplay(imageCache);
+			refreshCount = 0;			
+		}
+		free(imageCache);
 		tmos_start_task(Peripheral_TaskID,EPD_WAITBUSY_EVT,1400);
 			
     	return (events ^ AHT_GETDAT_EVT);
@@ -335,8 +351,7 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
     if(events & EPD_WAITBUSY_EVT)
     {
     	if(IS_BUSY == 0)
-    	{
-    		free(imageCache);
+    	{   		
     		EPD_Sleep();
     		tmos_start_task(Peripheral_TaskID, AHT_BEGIN_MEAS_EVT,192000);
     	} 
