@@ -98,12 +98,12 @@ static void EPD_Dat(uint8_t dat)
 //RES引脚发送复位命令
 static void EPD_HardReset(void)
 {
-	//RES_HIGH; //既然已经拉高了，那就没有必要再拉低一次。
-	//devDelay(10);
+	RES_HIGH; 
+	devDelay(10);
 	RES_LOW;
 	devDelay(2);
 	RES_HIGH;
-	//devDelay(10);
+	devDelay(10);
 }
 
 //写入波形控制的LUT，通过改变LUT数组可以控制波形
@@ -202,7 +202,7 @@ void EPD_Update(void)
     EPD_Cmd( 0x22 );
     EPD_Dat( 0xC7 );
     EPD_Cmd( 0x20 );
-    WAIT_BUSY;	
+//    WAIT_BUSY;	
     
 }
 
@@ -213,7 +213,7 @@ void EPD_PartialUpdate(void)
     EPD_Cmd( 0x22 );
     EPD_Dat( 0xCF );
     EPD_Cmd( 0x20 );
-    WAIT_BUSY;	
+//    WAIT_BUSY;	
     
 }
 

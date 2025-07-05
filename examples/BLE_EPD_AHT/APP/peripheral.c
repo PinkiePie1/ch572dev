@@ -19,8 +19,13 @@
 #include "EPD_1IN54_SSD1680.h"
 #include "miniGUI.h"
 #include "AHT20.h"
+#include <stdlib.h>
 
-__attribute__((aligned(4))) uint8_t imageCache[2888] = {0};
+//__attribute__((aligned(4))) uint8_t imageCache[2888] = {0};
+uint8_t rawData[9];
+uint32_t humid;
+uint32_t temperature;
+uint8_t *imageCache;
 
 /*********************************************************************
  * MACROS
@@ -43,7 +48,7 @@ __attribute__((aligned(4))) uint8_t imageCache[2888] = {0};
 #define SBP_PHY_UPDATE_DELAY                 2400
 
 // What is the advertising interval when device is discoverable (units of 625us, 80=50ms)
-#define DEFAULT_ADVERTISING_INTERVAL         80
+#define DEFAULT_ADVERTISING_INTERVAL         320
 
 // Limited discoverable mode advertises for 30.72s, and then stops
 // General discoverable mode advertises indefinitely
@@ -85,41 +90,6 @@ __attribute__((aligned(4))) uint8_t imageCache[2888] = {0};
  */
 static uint8_t Peripheral_TaskID = INVALID_TASK_ID; // Task ID for internal task/event processing
 
-// GAP - SCAN RSP data (max size = 31 bytes)
-static uint8_t scanRspData[] = {
-    // complete name
-    0x12, // length of this data
-    GAP_ADTYPE_LOCAL_NAME_COMPLETE,
-    'S',
-    'i',
-    'm',
-    'p',
-    'l',
-    'e',
-    ' ',
-    'P',
-    'e',
-    'r',
-    'i',
-    'p',
-    'h',
-    'e',
-    'r',
-    'a',
-    'l',
-    // connection interval range
-    0x05, // length of this data
-    GAP_ADTYPE_SLAVE_CONN_INTERVAL_RANGE,
-    LO_UINT16(DEFAULT_DESIRED_MIN_CONN_INTERVAL), // 100ms
-    HI_UINT16(DEFAULT_DESIRED_MIN_CONN_INTERVAL),
-    LO_UINT16(DEFAULT_DESIRED_MAX_CONN_INTERVAL), // 1s
-    HI_UINT16(DEFAULT_DESIRED_MAX_CONN_INTERVAL),
-
-    // Tx power level
-    0x02, // length of this data
-    GAP_ADTYPE_POWER_LEVEL,
-    0 // 0dBm
-};
 
 // GAP - Advertisement data (max size = 31 bytes, though this is
 // best kept short to conserve power while advertising)
@@ -129,14 +99,30 @@ static uint8_t advertData[] = {
     // discoverable mode (advertises indefinitely)
     0x02, // length of this data
     GAP_ADTYPE_FLAGS,
-    DEFAULT_DISCOVERABLE_MODE | GAP_ADTYPE_FLAGS_BREDR_NOT_SUPPORTED
+    GAP_ADTYPE_FLAGS_BREDR_NOT_SUPPORTED,
+
+    0x0c,                                 // length of this data
+    GAP_ADTYPE_LOCAL_NAME_COMPLETE, 
+    't',                                  // 'B'
+    'e',                                 // 'r'
+    'm',                                 // 'o'
+    'p',                                 // 'a'
+    '_',                                 // 'd'
+    's',                                 // 'c'
+    'e',                                 // 'a'
+    'n',                                 // 's'
+    's',                                 // 't'
+    'o',                                 // 'e'
+    'r',                                 // 'r'
+
+    // Broadcast of the data
+    0x07,                             // length of this data including the data type byte
+    GAP_ADTYPE_MANUFACTURER_SPECIFIC, // manufacturer specific advertisement data type
+    0xFF, 0xFF, 
+    0x00,0x00, //20212223
+    0x00,0x00
 };
 
-// GAP GATT Attributes
-static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "Simple Peripheral";
-
-// Connection item list
-static peripheralConnItem_t peripheralConnList;
 
 static uint16_t peripheralMTU = ATT_MTU_SIZE;
 /*********************************************************************
@@ -195,15 +181,15 @@ void Peripheral_Init()
     // Setup the GAP Peripheral Role Profile
     {
         uint8_t  initial_advertising_enable = TRUE;
-        uint16_t desired_min_interval = DEFAULT_DESIRED_MIN_CONN_INTERVAL;
-        uint16_t desired_max_interval = DEFAULT_DESIRED_MAX_CONN_INTERVAL;
+        uint8_t  initial_adv_event_type = GAP_ADTYPE_ADV_NONCONN_IND;
+ 
 
         // Set the GAP Role Parameters
         GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &initial_advertising_enable);
-        GAPRole_SetParameter(GAPROLE_SCAN_RSP_DATA, sizeof(scanRspData), scanRspData);
+		GAPRole_SetParameter(GAPROLE_ADV_EVENT_TYPE, sizeof(uint8_t), &initial_adv_event_type);
         GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
-        GAPRole_SetParameter(GAPROLE_MIN_CONN_INTERVAL, sizeof(uint16_t), &desired_min_interval);
-        GAPRole_SetParameter(GAPROLE_MAX_CONN_INTERVAL, sizeof(uint16_t), &desired_max_interval);
+//        GAPRole_SetParameter(GAPROLE_MIN_CONN_INTERVAL, sizeof(uint16_t), &desired_min_interval);
+//        GAPRole_SetParameter(GAPROLE_MAX_CONN_INTERVAL, sizeof(uint16_t), &desired_max_interval);
     }
 
     {
@@ -214,57 +200,26 @@ void Peripheral_Init()
         GAP_SetParamValue(TGAP_DISC_ADV_INT_MAX, advInt);
 
         // Enable scan req notify
-        GAP_SetParamValue(TGAP_ADV_SCAN_REQ_NOTIFY, ENABLE);
+        GAP_SetParamValue(TGAP_ADV_SCAN_REQ_NOTIFY, DISABLE);
     }
 
 
-    // Setup a delayed profile startup
-    tmos_set_event(Peripheral_TaskID, SBP_START_DEVICE_EVT);
+	tmos_set_event(Peripheral_TaskID, SBP_START_DEVICE_EVT);
 
-
-//
-
-	SoftI2CInit();
-	uint8_t rawData[9];
-	uint32_t humid;
-	uint32_t temperature;
-
-	AHT20_beginMeasure();
-
-	DelayMs(45);
-	AHT20_getDat(rawData);
-	humid = rawData[1];
-	humid <<= 8; 
-	humid |= rawData[2];
-	humid <<= 8; 
-	humid |= (rawData[3] & 0xF0);
-	humid >>= 4;
-	humid = (humid >> 7)+
-	(humid >> 10)+
-	(humid >> 11)+
-	(humid >> 12)+
-	(humid >> 16);
-
-	temperature = 0;
-	temperature = rawData[3] & 0x0F;
-	temperature <<= 8;
-	temperature |= rawData[4];
-	temperature <<= 8;
-	temperature |= rawData[5];
-	temperature = (temperature >> 6) + 
-				(temperature >> 9) +
-				(temperature >> 10) +
-				(temperature >> 11) +
-				(temperature >> 15) ;
-									
-	temperature = temperature - 5000;
-
-	paint_SetImageCache(imageCache);
-	EPD_Printf(10,150,font14,BLACK,"TMP: %d, HUM: %d.",temperature,humid);
+	imageCache = malloc(2888);
+	if(imageCache != NULL)
+	{
+		memset(imageCache,0x00,2888);
+	}
 	
+	paint_SetImageCache(imageCache);
+    EPD_Hal_Init();
 	EPD_Init();	
-	EPD_SendDisplay(imageCache);
 	EPD_Sleep();
+	SoftI2CInit();
+	tmos_start_task(Peripheral_TaskID, AHT_BEGIN_MEAS_EVT,40);
+	
+
 }
 
 /*********************************************************************
@@ -318,8 +273,79 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
     if(events & SBP_START_DEVICE_EVT)
     {
         // Start the Device
-        GAPRole_PeripheralStartDevice(Peripheral_TaskID, &Peripheral_BondMgrCBs, &Peripheral_PeripheralCBs);
+        GAPRole_PeripheralStartDevice(Peripheral_TaskID,NULL, NULL);
         return (events ^ SBP_START_DEVICE_EVT);
+        
+    }
+
+    if(events & AHT_BEGIN_MEAS_EVT)
+    {
+		AHT20_beginMeasure();		
+		tmos_start_task(Peripheral_TaskID,AHT_GETDAT_EVT,120);
+		
+    	return (events ^ AHT_BEGIN_MEAS_EVT);
+    	
+    }
+
+    if(events & AHT_GETDAT_EVT)
+    {
+		AHT20_getDat(rawData);
+		humid = rawData[1];
+		humid <<= 8; 
+		humid |= rawData[2];
+		humid <<= 8; 
+		humid |= (rawData[3] & 0xF0);
+		humid >>= 4;
+		humid = (humid >> 7)+
+		(humid >> 10)+
+		(humid >> 11)+
+		(humid >> 12)+
+		(humid >> 16);
+
+		temperature = 0;
+		temperature = rawData[3] & 0x0F;
+		temperature <<= 8;
+		temperature |= rawData[4];
+		temperature <<= 8;
+		temperature |= rawData[5];
+		temperature = (temperature >> 6) + 
+					(temperature >> 9) +
+					(temperature >> 10) +
+					(temperature >> 11) +
+					(temperature >> 15) ;
+										
+		temperature = temperature - 5000;
+
+		//update advertisement
+		advertData[20]=temperature/100;
+		advertData[21]=temperature%100;
+		advertData[22]=humid/100;
+		advertData[23]=humid%100;
+		GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
+
+		//print to screen
+		EPD_Printf(10,150,font14,BLACK,"TMP %04d HUM %04d",temperature,humid);
+		EPD_Init();	
+		EPD_SendDisplay(imageCache);
+		tmos_start_task(Peripheral_TaskID,EPD_WAITBUSY_EVT,1400);
+			
+    	return (events ^ AHT_GETDAT_EVT);
+    }
+
+    if(events & EPD_WAITBUSY_EVT)
+    {
+    	if(IS_BUSY == 0)
+    	{
+    		free(imageCache);
+    		EPD_Sleep();
+    		tmos_start_task(Peripheral_TaskID, AHT_BEGIN_MEAS_EVT,192000);
+    	} 
+    	else 
+    	{
+    		tmos_start_task(Peripheral_TaskID, EPD_WAITBUSY_EVT,10);
+    	}
+
+    	return (events ^ EPD_WAITBUSY_EVT);
     }
 
     // Discard unknown events
@@ -341,22 +367,6 @@ static void peripheralStateNotificationCB(gapRole_States_t newState, gapRoleEven
 {
     switch(newState)
     {
-        case GAPROLE_STARTED:
-            PRINT("Initialized..\n");
-            break;
-
-        case GAPROLE_ADVERTISING:
-            PRINT("Advertising..\n");
-            break;
-
-        case GAPROLE_WAITING:
-            PRINT("Waiting for advertising..\n");
-            break;
-
-        case GAPROLE_ERROR:
-            PRINT("Error..\n");
-            break;
-
         default:
             break;
     }

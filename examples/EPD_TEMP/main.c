@@ -23,9 +23,6 @@ void main(void)
     SetSysClock(CLK_SOURCE_HSE_PLL_100MHz);
     EPD_Hal_Init();
 
-
-
-
 	EPD_Init();	
 	EPD_Sleep();
 
@@ -36,7 +33,7 @@ void main(void)
 
 	SoftI2CInit();
 
-	DelayMs(15);
+	DelayMs(20);
 
 	AHT20_beginMeasure();
 
@@ -81,7 +78,7 @@ void main(void)
 	GPIOA_ITModeCfg(EPD_BUSY_PIN, GPIO_ITMode_FallEdge);
     PFIC_EnableIRQ(GPIO_A_IRQn);
     PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_GPIO_WAKE, Fsys_Delay_4096);
-	LowPower_Sleep( RB_PWR_RAM12K | RB_PWR_EXTEND | RB_PWR_LDO5V_EN);
+	LowPower_Sleep( RB_PWR_RAM12K | RB_PWR_EXTEND /*| RB_PWR_LDO5V_EN */);
 	EPD_Sleep();
 
 	DelayMs(30000);

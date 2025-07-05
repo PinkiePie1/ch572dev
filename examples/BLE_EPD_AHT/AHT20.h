@@ -1,9 +1,9 @@
 #ifndef __AHT20_H_
 #define __AHT20_H_
 
-#define SDA_PIN GPIO_Pin_6
-#define SCL_PIN GPIO_Pin_5
-#define VCC_PIN GPIO_Pin_4
+#define SDA_PIN GPIO_Pin_9
+#define SCL_PIN GPIO_Pin_8
+#define VCC_PIN GPIO_Pin_1
 
 #include "CH57x_common.h"
 
