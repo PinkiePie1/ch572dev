@@ -16,8 +16,8 @@ void drawRect(uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, ui
 void fillRect(uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, uint8_t color);
 void fastFill(uint16_t x, uint16_t y, uint16_t xblock, uint16_t yblock, uint8_t color);
 void FastImg(uint16_t xStart, uint16_t xEnd,const char *imgDat);
-void fastDrawChar(uint16_t xStart, uint16_t yStart, char chara, const uint8_t *font);
-void fastDrawString(uint16_t xStart, uint16_t yStart,char *stringToPrint, const uint8_t *font);
+void fastDrawChar(uint16_t xStart, uint16_t yStart, char chara, const uint8_t *font, uint8_t color);
+void fastDrawString(uint16_t xStart, uint16_t yStart,char *stringToPrint, const uint8_t *font, uint8_t color);
 void drawChar(uint16_t xStart, uint16_t yStart, char charToPrint, const char *font, uint8_t color);
 void drawStr(uint16_t xStart, uint16_t yStart,char *stringToPrint, const char *font, uint8_t color);
 void fastRect(uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, uint8_t color);

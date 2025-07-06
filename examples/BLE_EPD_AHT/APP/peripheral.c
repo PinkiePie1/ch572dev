@@ -19,9 +19,9 @@
 #include "EPD_1IN54_SSD1680.h"
 #include "miniGUI.h"
 #include "AHT20.h"
+#include "imageData.h"
 #include <stdlib.h>
 
-//__attribute__((aligned(4))) uint8_t imageCache[2888] = {0};
 uint8_t rawData[9];
 uint32_t humid;
 uint32_t temperature;
@@ -130,32 +130,6 @@ static uint16_t peripheralMTU = ATT_MTU_SIZE;
  * LOCAL FUNCTIONS
  */
 
-
-
-/*********************************************************************
- * PROFILE CALLBACKS
- */
-
-// GAP Role Callbacks
-static gapRolesCBs_t Peripheral_PeripheralCBs = {
-    NULL, // Profile State Change Callbacks
-    NULL,
-    NULL
-};
-
-// Broadcast Callbacks
-static gapRolesBroadcasterCBs_t Broadcaster_BroadcasterCBs = {
-    NULL, // Not used in peripheral role
-    NULL  // Receive scan request callback
-};
-
-// GAP Bond Manager Callbacks
-static gapBondCBs_t Peripheral_BondMgrCBs = {
-    NULL, // Passcode callback (not used by application)
-    NULL,  // Pairing / Bonding state Callback (not used by application)
-    NULL  // oob callback
-};
-
 // Simple GATT Profile Callbacks
 /*********************************************************************
  * PUBLIC FUNCTIONS
@@ -256,8 +230,6 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
 
         if((pMsg = tmos_msg_receive(Peripheral_TaskID)) != NULL)
         {
-            //Peripheral_ProcessTMOSMsg((tmos_event_hdr_t *)pMsg);
-            // Release the TMOS message
             tmos_msg_deallocate(pMsg);
         }
         // return unprocessed events
@@ -321,13 +293,15 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
 		imageCache = malloc(2888);
 		if(imageCache != NULL)
 		{
-			memset(imageCache,0x00,2888);
+			memcpy(imageCache,gImage_dither,2888);
 		}
 		
 		paint_SetImageCache(imageCache);
+
+		//fastFill(0,0,27,151,WHITE);
+		EPD_Printf(0,150,font14,WHITE,"TEMPERATURE: %02d.%02d",temperature/100,temperature%100);
+		EPD_Printf(14,150,font14,WHITE,"HUMIDITY: %02d.%02d%%",humid/100,humid%100);
 		
-		EPD_Printf(10,150,font14,BLACK,"TEMP: %02d.%02d C",temperature/100,temperature%100);
-		EPD_Printf(25,150,font14,BLACK,"HUMIDITY: %02d.%02d %%",humid/100,humid%100);
 
 		//send dispaly data, partial refresh 8 times.
 		if(refreshCount < 8)
@@ -341,6 +315,7 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
 			EPD_SendDisplay(imageCache);
 			refreshCount = 0;			
 		}
+
 		free(imageCache);
 		tmos_start_task(Peripheral_TaskID,EPD_WAITBUSY_EVT,1400);
 			
@@ -365,26 +340,3 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
     // Discard unknown events
     return 0;
 }
-
-
-
-/*********************************************************************
- * @fn      peripheralStateNotificationCB
- *
- * @brief   Notification from the profile of a state change.
- *
- * @param   newState - new state
- *
- * @return  none
- */
-static void peripheralStateNotificationCB(gapRole_States_t newState, gapRoleEvent_t *pEvent)
-{
-    switch(newState)
-    {
-        default:
-            break;
-    }
-}
-
-/*********************************************************************
-*********************************************************************/

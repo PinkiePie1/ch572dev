@@ -113,19 +113,19 @@ void fastFill(uint16_t x, uint16_t y, uint16_t xblock, uint16_t yblock, uint8_t 
 	//覆盖对应的位置，先覆盖头，再覆盖中间，最后覆盖尾。
     for( uint16_t i = y; i <= (y+yblock); i++ )
     {	
-		index = (x>>3) + (i<<4);
-		tmp1 = image[(x>>3) + (i<<4)];
-		tmp2 = image[((x+xblock)>>3) + (i<<4)];
+		index = (x>>3) + (i*19);
+		tmp1 = image[(x>>3) + (i*19)];
+		tmp2 = image[((x+xblock)>>3) + (i*19)];
 		
 		image[index] = color ? ( tmp1 | mask2 ) : ( tmp1 & mask2 );
 		
     	for (uint16_t j = x+8; j < ( x + xblock ); j += 8 )
     	{
-    		index = (j>>3) + (i<<4);
+    		index = (j>>3) + (i*19);
     		image[index] = color;
 		}
 				
-		index = ((x+xblock)>>3) + (i<<4);
+		index = ((x+xblock)>>3) + (i*19);
 		image[index] = color ? ( tmp2 | mask1 ) : ( tmp2 & mask1 );
     }	
 
@@ -153,7 +153,7 @@ void fastRect(uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, ui
 		if( i==yStart || i==yEnd )
 		{
 			tmp = image[(xStart>>3)+(i*19)];
-			image[(xStart>>3)+(i<<4)] = color ? 
+			image[(xStart>>3)+(i*19)] = color ? 
 			                            (tmp | (0xFF>>(xStart&7))) :
 			                            (tmp & ~(0xFF>>(xStart&7)));
 			                            
@@ -190,7 +190,7 @@ void FastImg(uint16_t xStart, uint16_t xEnd, const char *imgDat)
 }
 
 //快速画单个字，x轴只支持字节对齐，也就是只有16行,
-void fastDrawChar(uint16_t xStart, uint16_t yStart, char chara, const uint8_t *font)
+void fastDrawChar(uint16_t xStart, uint16_t yStart, char chara, const uint8_t *font, uint8_t color)
 {	
 	if (FONT_GETHEIGHT(font) == 0x08)
 	{
@@ -198,7 +198,7 @@ void fastDrawChar(uint16_t xStart, uint16_t yStart, char chara, const uint8_t *f
 	    for (uint8_t i=0; i<width; i++)
 	    {
 	    	uint16_t index = (xStart>>3)+((yStart+i)*19);
-	    	image[index] = font[width*(chara-' '+1)+i];
+	    	image[index] = color? font[width*(chara-' '+1)+i] : ~font[width*(chara-' '+1)+i];
 	    }	
 	}
 	else if (FONT_GETHEIGHT(font) == 14)
@@ -207,18 +207,29 @@ void fastDrawChar(uint16_t xStart, uint16_t yStart, char chara, const uint8_t *f
 		uint8_t offset = xStart&7;
 		for (uint8_t i=0; i<width; i++)
 		{
+
 			uint16_t index = (xStart>>3) + ((yStart+i)*19);
 			uint16_t fontIndex = width*2*(chara-' '+1)+i*2;
-			image[index] |= font[fontIndex]>>offset;
-			image[index+1] |= font[fontIndex]<<(8-offset);
-			image[index+1] |= font[fontIndex+1]>>offset;
-			image[index+2] |= font[fontIndex+1]<<(8-offset);
+			if(color)
+			{			
+				image[index] |= font[fontIndex]>>offset;
+				image[index+1] |= font[fontIndex]<<(8-offset);
+				image[index+1] |= font[fontIndex+1]>>offset;
+				image[index+2] |= font[fontIndex+1]<<(8-offset);
+			}
+			else
+			{
+				image[index] &= ~font[fontIndex]>>offset;
+				image[index+1] &= ~font[fontIndex]<<(8-offset) | (0xFF>>offset);
+				image[index+1] &= ~font[fontIndex+1]>>offset | (0xFF<<(8-offset));
+				image[index+2] &= ~font[fontIndex+1]<<(8-offset) | (0xFF>>offset);
+			}
 		}
 	}
 }
 
 //快速画字符串。
-void fastDrawString(uint16_t xStart, uint16_t yStart, char *stringToPrint, const uint8_t *font)
+void fastDrawString(uint16_t xStart, uint16_t yStart, char *stringToPrint, const uint8_t *font, uint8_t color)
 {
 	if (FONT_GETHEIGHT(font) == 0x08 || FONT_GETHEIGHT(font) == 14)
 	{
@@ -230,7 +241,7 @@ void fastDrawString(uint16_t xStart, uint16_t yStart, char *stringToPrint, const
 			x = (y>=width)&&(*stringToPrint!='\n')? x : x+FONT_GETHEIGHT(font);
 			y = (y>=width)? y-width : yStart-width;
 			y = (*stringToPrint=='\n')? yStart:y;
-			fastDrawChar(x,y,*stringToPrint,font);
+			fastDrawChar(x,y,*stringToPrint,font,color);
 
 		}	
 	}
@@ -280,5 +291,5 @@ void EPD_Printf(uint16_t xStart, uint16_t yStart, const char *font, uint8_t colo
 	char buffer[40];
 	vsnprintf(buffer,40, format, args);
 	va_end(args);
-	fastDrawString(xStart,yStart,buffer,font);
+	fastDrawString(xStart,yStart,buffer,font,color);
 }
