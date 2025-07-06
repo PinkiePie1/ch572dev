@@ -118,5 +118,16 @@ rule("generateAll")
 		os.execv(target:tool("size"),{
 			target:targetfile()
 		})
+
+		if has_config("flash") then
+			os.execv("echo", {"if i flash then I run minichlink", path.join("objs", target:name() .. ".bin")})
+    		progress.show(opt.progress, "${color.build.object}flashing %s", target:name())
+		end
     end)
 
+option("flash")
+	set_default(false)
+	set_showmenu(true)
+	set_description("flash to mcu")
+
+option_end()
