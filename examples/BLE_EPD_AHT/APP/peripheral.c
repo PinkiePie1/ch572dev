@@ -299,9 +299,9 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
 		paint_SetImageCache(imageCache);
 
 		//fastFill(0,0,27,151,WHITE);
-		EPD_Printf(0,150,font14,WHITE,"TEMPERATURE: %02d.%02d",temperature/100,temperature%100);
-		EPD_Printf(14,150,font14,WHITE,"HUMIDITY: %02d.%02d%%",humid/100,humid%100);
-		
+		//EPD_Printf(0,150,font14,WHITE,"TEMPERATURE: %02d.%02d",temperature/100,temperature%100);
+		//EPD_Printf(14,150,font14,WHITE,"HUMIDITY: %02d.%02d%%",humid/100,humid%100);
+		EPD_Printf(0,150,font14,WHITE,"T:%02d.%02d H:%02d.%02d%%",temperature/100,temperature%100,humid/100,humid%100);
 
 		//send dispaly data, partial refresh 8 times.
 		if(refreshCount < 8)
