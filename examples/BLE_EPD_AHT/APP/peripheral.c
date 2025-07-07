@@ -27,6 +27,7 @@ uint32_t humid;
 uint32_t temperature;
 uint8_t *imageCache;
 uint8_t refreshCount = 250;
+uint8_t img_index = 0;
 
 /*********************************************************************
  * MACROS
@@ -291,34 +292,54 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
 
 		//print to screen
 		imageCache = malloc(2888);
+		uint8_t textcolor = BLACK;
 		if(imageCache != NULL)
 		{
-			memcpy(imageCache,gImage_dither,2888);
-		}
+			if (img_index == 0)
+			{
+				memcpy(imageCache,gImage_dither,2888);
+				textcolor = WHITE;
+				img_index = 1;
+			}
+			else if (img_index == 1)
+			{
+				memcpy(imageCache,gImage_dither2,2888);
+				textcolor = BLACK;
+				img_index = 0;
+			}
+			else
+			{
+				img_index = 0;
+			}
 		
-		paint_SetImageCache(imageCache);
+		
+			paint_SetImageCache(imageCache);
 
-		//fastFill(0,0,27,151,WHITE);
-		//EPD_Printf(0,150,font14,WHITE,"TEMPERATURE: %02d.%02d",temperature/100,temperature%100);
-		//EPD_Printf(14,150,font14,WHITE,"HUMIDITY: %02d.%02d%%",humid/100,humid%100);
-		EPD_Printf(0,150,font14,WHITE,"T:%02d.%02d H:%02d.%02d%%",temperature/100,temperature%100,humid/100,humid%100);
+			//fastFill(0,0,27,151,WHITE);
+			//EPD_Printf(0,150,font14,WHITE,"TEMPERATURE: %02d.%02d",temperature/100,temperature%100);
+			//EPD_Printf(14,150,font14,WHITE,"HUMIDITY: %02d.%02d%%",humid/100,humid%100);
+			EPD_Printf(0,150,font14,textcolor,
+				"T:%02d.%02d H:%02d.%02d%%",
+				temperature/100,temperature%100,
+				humid/100,humid%100);
 
-		//send dispaly data, partial refresh 8 times.
-		if(refreshCount < 8)
-		{	
-			EPD_PartialDisplay(imageCache);
-			refreshCount++;
-		}
-		else
-		{
-			EPD_Init();	
-			EPD_SendDisplay(imageCache);
-			refreshCount = 0;			
-		}
+			//send dispaly data, partial refresh 8 times.
+			if(refreshCount < 8)
+			{	
+				EPD_PartialDisplay(imageCache);
+				refreshCount++;
+			}
+			else
+			{
+				EPD_Init();	
+				EPD_SendDisplay(imageCache);
+				refreshCount = 0;			
+			}
 
-		free(imageCache);
-		tmos_start_task(Peripheral_TaskID,EPD_WAITBUSY_EVT,1400);
-			
+			free(imageCache);
+			tmos_start_task(Peripheral_TaskID,EPD_WAITBUSY_EVT,1400);
+
+		}			
     	return (events ^ AHT_GETDAT_EVT);
     }
 
