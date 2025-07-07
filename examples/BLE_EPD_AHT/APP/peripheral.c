@@ -293,19 +293,18 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
 		//print to screen
 		imageCache = malloc(2888);
 		uint8_t textcolor = BLACK;
+		img_index = (0x0001&temperature);
 		if(imageCache != NULL)
 		{
 			if (img_index == 0)
 			{
 				memcpy(imageCache,gImage_dither,2888);
 				textcolor = WHITE;
-				img_index = 1;
 			}
 			else if (img_index == 1)
 			{
 				memcpy(imageCache,gImage_dither2,2888);
 				textcolor = BLACK;
-				img_index = 0;
 			}
 			else
 			{
