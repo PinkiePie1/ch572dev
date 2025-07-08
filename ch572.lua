@@ -53,7 +53,6 @@ target("ch572")
 	    "-fno-common",
 		"--param=highcode-gen-section-name=1",
 		"-g",
-		"-UDEBUG",
 	    "-Os"
 	}
 
@@ -74,7 +73,7 @@ target("ch572")
 		"-lm",
 		"-lISP572",
 --	    "-T", "$(ldfile)",
-	    "-lprintf",
+--	    "-lprintf",
 		{force = true}
 
 	)
@@ -82,8 +81,12 @@ target("ch572")
 	set_policy("check.auto_ignore_flags", false)
 
 	add_cflags(arch_flags)
-	add_cflags("-UDEBUG", "-std=gnu17")
+	add_cflags("-std=gnu17")
 	add_asflags(arch_flags, "-x", "assembler-with-cpp")
+
+	if has_config("debug") then
+		add_cflags("-DDEBUG=0")
+	end
 
 
 target("ch572ble")
@@ -130,5 +133,10 @@ option("flash")
 	set_default(false)
 	set_showmenu(true)
 	set_description("flash to mcu")
+
+option("debug")
+	set_default(false)
+	set_showmenu(true)
+	set_description("debug at uart port.")
 
 option_end()
