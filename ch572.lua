@@ -123,8 +123,8 @@ rule("generateAll")
 		})
 
 		if has_config("flash") then
-			os.execv("echo", {"if i flash then I run minichlink -uw", path.join("objs", target:name() .. ".bin" .. " flash -b")})
-			os.execv("./minichlink",{"-uw", path.join("objs", target:name() .. ".bin") , "flash", "-b"})
+			os.execv("echo", {"if i flash then I run minichlink -E -w", path.join("objs", target:name() .. ".bin" .. " flash -b")})
+			os.execv("./minichlink",{"-E","-w", path.join("objs", target:name() .. ".bin") , "flash", "-b"})
     		progress.show(opt.progress, "${color.build.object}flashing %s", target:name())
 		end
     end)

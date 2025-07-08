@@ -63,6 +63,9 @@ void main(void)
         	DelayMs(1000);
         	ICM_ReadAll(buffer);
         	UART_SendString(buffer, 14);
+			GPIOA_ResetBits(GPIO_Pin_9);
+			DelayMs(20);
+        	GPIOA_SetBits(GPIO_Pin_9);
         }
 
         
