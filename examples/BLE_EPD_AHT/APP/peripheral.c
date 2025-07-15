@@ -50,7 +50,7 @@ uint8_t img_index = 0;
 #define SBP_PHY_UPDATE_DELAY                 2400
 
 // What is the advertising interval when device is discoverable (units of 625us, 80=50ms)
-#define DEFAULT_ADVERTISING_INTERVAL         160
+#define DEFAULT_ADVERTISING_INTERVAL         500
 
 // Limited discoverable mode advertises for 30.72s, and then stops
 // General discoverable mode advertises indefinitely
@@ -346,9 +346,10 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
     {
     	if(IS_BUSY == 0)
     	{   		
-    		EPD_Sleep();
+    		
     		tmos_start_task(Peripheral_TaskID, AHT_BEGIN_MEAS_EVT,192000);
-    	} 
+    		EPD_Sleep();
+       	} 
     	else 
     	{
     		tmos_start_task(Peripheral_TaskID, EPD_WAITBUSY_EVT,10);

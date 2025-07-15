@@ -68,17 +68,17 @@ void EPD_Hal_Init(void)
                    EPD_RES_PIN |
                    EPD_DC_PIN |
                    EPD_CS_PIN, GPIO_ModeOut_PP_5mA );
-   GPIOA_ModeCfg(EPD_BUSY_PIN, GPIO_ModeIN_PU);
+   GPIOA_ModeCfg(EPD_BUSY_PIN, GPIO_ModeIN_Floating);
 
    SPI_MasterDefInit();//默认的SPI初始化，三线全双工。后续需要改
-   SPI_CLKCfg(2); //2分频
+   SPI_CLKCfg(3); //3分频
    CS_HIGH;
    RES_HIGH;
    DC_HIGH;
 }
 
 //写EPD寄存器地址
-static void EPD_Cmd(uint8_t cmd)
+void EPD_Cmd(uint8_t cmd)
 {
 	DC_LOW;
 	CS_LOW;
@@ -87,7 +87,7 @@ static void EPD_Cmd(uint8_t cmd)
 }
 
 //写EPD寄存器数据。EPD的操作就是先写地址，再写数据，可以写多次。
-static void EPD_Dat(uint8_t dat)
+void EPD_Dat(uint8_t dat)
 {
 	DC_HIGH;
 	CS_LOW;
@@ -98,12 +98,12 @@ static void EPD_Dat(uint8_t dat)
 //RES引脚发送复位命令
 static void EPD_HardReset(void)
 {
-	RES_HIGH; 
-	devDelay(10);
+	//RES_HIGH; 
+	//devDelay(10);
 	RES_LOW;
 	devDelay(2);
 	RES_HIGH;
-	devDelay(10);
+	//devDelay(10);
 }
 
 //写入波形控制的LUT，通过改变LUT数组可以控制波形

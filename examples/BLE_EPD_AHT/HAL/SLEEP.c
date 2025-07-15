@@ -1,7 +1,7 @@
 #include "HAL.h"
 
 
-#define POWER_PIN 0 // POWER_PIN = 0 is to use 3.3v as input, POWER = 1 is to user 5V as power input
+#define POWER_PIN 1 // POWER_PIN = 0 is to use 3.3v as input, POWER = 1 is to user 5V as power input
 
 uint16_t LSIWakeup_MaxTime;
 
