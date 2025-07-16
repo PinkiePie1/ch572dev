@@ -38,14 +38,14 @@ target("ch572")
 	    {public = true}
 	    )
 	    
-	local arch_flags = {
+	arch_flags = {
 	    "-march=rv32imc_zba_zbb_zbc_zbs_xw",
 	    "-mabi=ilp32",
-	    "-mtune=size",
 	    "-mcmodel=medany",
 	    "-msmall-data-limit=8",
 	    "-mno-save-restore",
 	    "-fmax-errors=20",
+		"-Os",
 	    "-fmessage-length=0",
 	    "-fsigned-char",
 	    "-ffunction-sections",
@@ -53,7 +53,7 @@ target("ch572")
 	    "-fno-common",
 		"--param=highcode-gen-section-name=1",
 		"-g",
-	    "-Os"
+	    
 	}
 
 	
@@ -80,7 +80,7 @@ target("ch572")
 	
 	set_policy("check.auto_ignore_flags", false)
 
-	add_cflags(arch_flags)
+	add_cflags(arch_flags,{public = true})
 	add_cflags("-std=gnu17")
 	add_asflags(arch_flags, "-x", "assembler-with-cpp")
 

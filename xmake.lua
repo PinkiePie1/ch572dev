@@ -6,6 +6,7 @@ function check_ld()
 		add_ldflags("-T" .. local_ld, {force = true})
 	else
 		add_ldflags("-T","CH572libs/Ld/Link.ld",{force = true})
+		add_cflags("-ICH572libs/Ld")
 	end
 end
 
