@@ -11,10 +11,10 @@
  *******************************************************************************/
 
 /******************************************************************************/
-/* Í·ÎÄ¼þ°üº¬ */
+/* Í·ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ */
 #include "CONFIG.h"
 #include "RF_PHY.h"
-#include "EPD_1IN54_SSD1680.h"
+#include "EPD_1IN54_SSD1681.h"
 #include "miniGUI.h"
 #include "SHT40.h"
 #include "imageData.h"
@@ -51,7 +51,7 @@ volatile uint8_t rx_end_flag=0;
 /*********************************************************************
  * @fn      RF_Wait_Tx_End
  *
- * @brief   ÊÖ¶¯Ä£Ê½µÈ´ý·¢ËÍÍê³É£¬×Ô¶¯Ä£Ê½µÈ´ý·¢ËÍ-½ÓÊÕÍê³É£¬±ØÐëÔÚRAMÖÐµÈ´ý£¬µÈ´ýÊ±¿ÉÒÔÖ´ÐÐÓÃ»§´úÂë£¬µ«ÐèÒª×¢ÒâÖ´ÐÐµÄ´úÂë±ØÐëÔËÐÐÔÚRAMÖÐ£¬·ñÔòÓ°Ïì·¢ËÍ
+ * @brief   ï¿½Ö¶ï¿½Ä£Ê½ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É£ï¿½ï¿½Ô¶ï¿½Ä£Ê½ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½RAMï¿½ÐµÈ´ï¿½ï¿½ï¿½ï¿½È´ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ë£¬ï¿½ï¿½ï¿½ï¿½Òª×¢ï¿½ï¿½Ö´ï¿½ÐµÄ´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½RAMï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½Ó°ï¿½ì·¢ï¿½ï¿½
  *
  * @return  none
  */
@@ -65,7 +65,7 @@ void RF_Wait_Tx_End()
         i++;
         __nop();
         __nop();
-        // Ô¼5ms³¬Ê±
+        // Ô¼5msï¿½ï¿½Ê±
         if(i>(FREQ_SYS/1000))
         {
             tx_end_flag = TRUE;
@@ -76,7 +76,7 @@ void RF_Wait_Tx_End()
 /*********************************************************************
  * @fn      RF_Wait_Rx_End
  *
- * @brief   ×Ô¶¯Ä£Ê½µÈ´ýÓ¦´ð·¢ËÍÍê³É£¬±ØÐëÔÚRAMÖÐµÈ´ý£¬µÈ´ýÊ±¿ÉÒÔÖ´ÐÐÓÃ»§´úÂë£¬µ«ÐèÒª×¢ÒâÖ´ÐÐµÄ´úÂë±ØÐëÔËÐÐÔÚRAMÖÐ£¬·ñÔòÓ°Ïì·¢ËÍ
+ * @brief   ï¿½Ô¶ï¿½Ä£Ê½ï¿½È´ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½RAMï¿½ÐµÈ´ï¿½ï¿½ï¿½ï¿½È´ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ë£¬ï¿½ï¿½ï¿½ï¿½Òª×¢ï¿½ï¿½Ö´ï¿½ÐµÄ´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½RAMï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½Ó°ï¿½ì·¢ï¿½ï¿½
  *
  * @return  none
  */
@@ -90,7 +90,7 @@ void RF_Wait_Rx_End()
         i++;
         __nop();
         __nop();
-        // Ô¼5ms³¬Ê±
+        // Ô¼5msï¿½ï¿½Ê±
         if(i>(FREQ_SYS/1000))
         {
             rx_end_flag = TRUE;
@@ -101,12 +101,12 @@ void RF_Wait_Rx_End()
 /*********************************************************************
  * @fn      RF_2G4StatusCallBack
  *
- * @brief   RF ×´Ì¬»Øµ÷£¬´Ëº¯ÊýÔÚÖÐ¶ÏÖÐµ÷ÓÃ¡£×¢Òâ£º²»¿ÉÔÚ´Ëº¯ÊýÖÐÖ±½Óµ÷ÓÃRF½ÓÊÕ»òÕß·¢ËÍAPI£¬ÐèÒªÊ¹ÓÃÊÂ¼þµÄ·½Ê½µ÷ÓÃ
- *          ÔÚ´Ë»Øµ÷ÖÐÖ±½ÓÊ¹ÓÃ»òµ÷ÓÃº¯ÊýÉæ¼°µ½µÄ±äÁ¿Ðè×¢Òâ£¬´Ëº¯ÊýÔÚÖÐ¶ÏÖÐµ÷ÓÃ¡£
+ * @brief   RF ×´Ì¬ï¿½Øµï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½ï¿½Ðµï¿½ï¿½Ã¡ï¿½×¢ï¿½â£ºï¿½ï¿½ï¿½ï¿½ï¿½Ú´Ëºï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½Óµï¿½ï¿½ï¿½RFï¿½ï¿½ï¿½Õ»ï¿½ï¿½ß·ï¿½ï¿½ï¿½APIï¿½ï¿½ï¿½ï¿½ÒªÊ¹ï¿½ï¿½ï¿½Â¼ï¿½ï¿½Ä·ï¿½Ê½ï¿½ï¿½ï¿½ï¿½
+ *          ï¿½Ú´Ë»Øµï¿½ï¿½ï¿½Ö±ï¿½ï¿½Ê¹ï¿½Ã»ï¿½ï¿½ï¿½Ãºï¿½ï¿½ï¿½ï¿½æ¼°ï¿½ï¿½ï¿½Ä±ï¿½ï¿½ï¿½ï¿½ï¿½×¢ï¿½â£¬ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½ï¿½Ðµï¿½ï¿½Ã¡ï¿½
  *
- * @param   sta     - ×´Ì¬ÀàÐÍ
- * @param   crc     - crcÐ£Ñé½á¹û
- * @param   rxBuf   - Êý¾ÝbufÖ¸Õë
+ * @param   sta     - ×´Ì¬ï¿½ï¿½ï¿½ï¿½
+ * @param   crc     - crcÐ£ï¿½ï¿½ï¿½ï¿½
+ * @param   rxBuf   - ï¿½ï¿½ï¿½ï¿½bufÖ¸ï¿½ï¿½
  *
  * @return  none
  */
@@ -209,12 +209,12 @@ void RF_2G4StatusCallBack(uint8_t sta, uint8_t crc, uint8_t *rxBuf)
 /*********************************************************************
  * @fn      RF_ProcessEvent
  *
- * @brief   RF ÊÂ¼þ´¦Àí
+ * @brief   RF ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½
  *
- * @param   task_id - ÈÎÎñID
- * @param   events  - ÊÂ¼þ±êÖ¾
+ * @param   task_id - ï¿½ï¿½ï¿½ï¿½ID
+ * @param   events  - ï¿½Â¼ï¿½ï¿½ï¿½Ö¾
  *
- * @return  Î´Íê³ÉÊÂ¼þ
+ * @return  Î´ï¿½ï¿½ï¿½ï¿½Â¼ï¿½
  */
 uint16_t RF_ProcessEvent(uint8_t task_id, uint16_t events)
 {
@@ -314,14 +314,12 @@ uint16_t RF_ProcessEvent(uint8_t task_id, uint16_t events)
 		{
 			if (img_index == 0)
 			{
-				//memcpy(imageCache,gImage_dither,2888);
-                memset(imageCache,0xFF,5000);
+				memcpy(imageCache,gImage_black,5000);
 				textcolor = WHITE;
 			}
 			else if (img_index == 1)
 			{
-				//memcpy(imageCache,gImage_dither2,2888);
-                memset(imageCache,0x00,5000);
+				memcpy(imageCache,gImage_white,5000);
 				textcolor = BLACK;
 			}
 			else
@@ -333,16 +331,14 @@ uint16_t RF_ProcessEvent(uint8_t task_id, uint16_t events)
 			paint_SetImageCache(imageCache);
             
 
-			EPD_Printf(0,150,font14,textcolor,
+			EPD_Printf(0,198,font14,textcolor,
 				"T:%02d.%02d H:%02d.%02d%%",
 				temperature/100,temperature%100,
 				humid/100,humid%100);
-            EPD_Printf(20,150,font14,textcolor,"er:%d",error);
-            //memset(imageCache,textcolor,5);
 
 			//send dispaly data, partial refresh 8 times.
             
-			if(refreshCount < 8)
+			if(refreshCount < 5)
 			{	
 				EPD_PartialDisplay(imageCache);
 				refreshCount++;
@@ -385,7 +381,7 @@ uint16_t RF_ProcessEvent(uint8_t task_id, uint16_t events)
 /*********************************************************************
  * @fn      RF_Init
  *
- * @brief   RF ³õÊ¼»¯
+ * @brief   RF ï¿½ï¿½Ê¼ï¿½ï¿½
  *
  * @return  none
  */
@@ -396,14 +392,14 @@ void RF_Init(void)
 
     tmos_memset(&rf_Config, 0, sizeof(rfConfig_t));
     taskID = TMOS_ProcessEventRegister(RF_ProcessEvent);
-    rf_Config.accessAddress = 0x8E89BED6; // ½ûÖ¹Ê¹ÓÃ0x55555555ÒÔ¼°0xAAAAAAAA ( ½¨Òé²»³¬¹ý24´ÎÎ»·´×ª£¬ÇÒ²»³¬¹ýÁ¬ÐøµÄ6¸ö0»ò1 )
+    rf_Config.accessAddress = 0x8E89BED6; // ï¿½ï¿½Ö¹Ê¹ï¿½ï¿½0x55555555ï¿½Ô¼ï¿½0xAAAAAAAA ( ï¿½ï¿½ï¿½é²»ï¿½ï¿½ï¿½ï¿½24ï¿½ï¿½Î»ï¿½ï¿½×ªï¿½ï¿½ï¿½Ò²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½6ï¿½ï¿½0ï¿½ï¿½1 )
     rf_Config.CRCInit = 0x555555;
     rf_Config.Channel = 37;
     rf_Config.Frequency = 2480000;
 #if(RF_AUTO_MODE_EXAM)
     rf_Config.LLEMode = LLE_MODE_BASIC;
 #else
-    rf_Config.LLEMode = LLE_MODE_BASIC | LLE_MODE_EX_CHANNEL; // Ê¹ÄÜ LLE_MODE_EX_CHANNEL ±íÊ¾ Ñ¡Ôñ rf_Config.Frequency ×÷ÎªÍ¨ÐÅÆµµã
+    rf_Config.LLEMode = LLE_MODE_BASIC | LLE_MODE_EX_CHANNEL; // Ê¹ï¿½ï¿½ LLE_MODE_EX_CHANNEL ï¿½ï¿½Ê¾ Ñ¡ï¿½ï¿½ rf_Config.Frequency ï¿½ï¿½ÎªÍ¨ï¿½ï¿½Æµï¿½ï¿½
 #endif
     rf_Config.rfStatusCB = RF_2G4StatusCallBack;
     rf_Config.RxMaxlen = 251;

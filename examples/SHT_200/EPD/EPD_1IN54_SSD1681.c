@@ -1,4 +1,4 @@
-#include "EPD_1IN54_SSD1680.h"
+#include "EPD_1IN54_SSD1681.h"
 
 /* 控制刷新电压波形用到的LUT */
 //注意和默认模式不同，这里黑白反色了，这样就能跳过paint clear white。
@@ -71,7 +71,7 @@ void EPD_Hal_Init(void)
    GPIOA_ModeCfg(EPD_BUSY_PIN, GPIO_ModeIN_Floating);
 
    SPI_MasterDefInit();//默认的SPI初始化，三线全双工。后续需要改
-   SPI_CLKCfg(5); //3分频
+   SPI_CLKCfg(3); //3分频
    CS_HIGH;
    RES_HIGH;
    DC_HIGH;
@@ -98,12 +98,12 @@ void EPD_Dat(uint8_t dat)
 //RES引脚发送复位命令
 static void EPD_HardReset(void)
 {
-	RES_HIGH; 
-	devDelay(200);
+//	RES_HIGH; 
+//	devDelay(200);
 	RES_LOW;
 	devDelay(2);
 	RES_HIGH;
-	devDelay(200);
+//	devDelay(200);
 }
 
 //写入波形控制的LUT，通过改变LUT数组可以控制波形
