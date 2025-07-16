@@ -332,9 +332,13 @@ uint16_t RF_ProcessEvent(uint8_t task_id, uint16_t events)
             
 
 			EPD_Printf(0,198,font14,textcolor,
-				"T:%02d.%02d H:%02d.%02d%%",
-				temperature/100,temperature%100,
-				humid/100,humid%100);
+				"T:%02d.%02d",
+				temperature/100,temperature%100
+				);
+			EPD_Printf(14,198,font14,textcolor,
+				"H:%02d.%02d%%",
+				humid/100,humid%100
+				);
 
 			//send dispaly data, partial refresh 8 times.
             
