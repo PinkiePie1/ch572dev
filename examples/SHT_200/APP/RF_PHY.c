@@ -335,7 +335,7 @@ uint16_t RF_ProcessEvent(uint8_t task_id, uint16_t events)
 				"T:%02d.%02d",
 				temperature/100,temperature%100
 				);
-			EPD_Printf(14,198,font14,textcolor,
+			EPD_Printf(16,198,font14,textcolor,
 				"H:%02d.%02d%%",
 				humid/100,humid%100
 				);
