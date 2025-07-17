@@ -150,7 +150,7 @@ static void EPD_SetWindows( uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uin
 static void EPD_SetCursor( uint16_t X, uint16_t Y )
 {
     EPD_Cmd( 0x4E );
-    EPD_Dat( X & 0xFF );
+    EPD_Dat( X>>3 & 0xFF );
 
     EPD_Cmd( 0x4F );
     EPD_Dat( Y & 0xFF );
