@@ -222,12 +222,12 @@ void EPD_PartialUpdate(void)
 void EPD_Clear(void)
 {
 	EPD_Cmd(0x24);
-	for(uint32_t i = 0; i < 2888; i++)
+	for(uint32_t i = 0; i < 4999; i++)
 	{
 		EPD_Dat((uint8_t)i);
 	}
 	EPD_Cmd(0x26);
-	for(uint32_t i = 0; i < 2888; i++)
+	for(uint32_t i = 0; i < 4999; i++)
 	{
 		EPD_Dat(0x00);
 	}
@@ -244,7 +244,7 @@ void EPD_SendDisplay(uint8_t *image)
 	EPD_Cmd(0x24);
 	
     R8_SPI_CTRL_CFG |= RB_SPI_BIT_ORDER;
-	for (int i=2887;i>=0;i--){
+	for (int i=4999;i>=0;i--){
 	EPD_Dat(image[i]);
 	}
 	R8_SPI_CTRL_CFG &= ~(RB_SPI_BIT_ORDER);
@@ -252,7 +252,7 @@ void EPD_SendDisplay(uint8_t *image)
 	EPD_Cmd(0x26);
 	
 	R8_SPI_CTRL_CFG |= RB_SPI_BIT_ORDER;
-	for (int i=2887;i>=0;i--){
+	for (int i=4999;i>=0;i--){
 	EPD_Dat(image[i]);
 	}
 	R8_SPI_CTRL_CFG &= ~(RB_SPI_BIT_ORDER);
@@ -316,7 +316,7 @@ void EPD_PartialDisplay(uint8_t *image)
 	EPD_Cmd(0x24);
 #if(defined(REVERSED)) && (REVERSED == 1)
     R8_SPI_CTRL_CFG |= RB_SPI_BIT_ORDER;
-	for (int i=2887;i>=0;i--){
+	for (int i=4999;i>=0;i--){
 	EPD_Dat(image[i]);
 	}
 	R8_SPI_CTRL_CFG &= ~(RB_SPI_BIT_ORDER);

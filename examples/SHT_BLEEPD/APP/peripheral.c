@@ -50,7 +50,7 @@ uint8_t img_index = 0;
 #define SBP_PHY_UPDATE_DELAY                 2400
 
 // What is the advertising interval when device is discoverable (units of 625us, 80=50ms)
-#define DEFAULT_ADVERTISING_INTERVAL         500
+#define DEFAULT_ADVERTISING_INTERVAL         1300
 
 // Limited discoverable mode advertises for 30.72s, and then stops
 // General discoverable mode advertises indefinitely
@@ -295,10 +295,6 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
 				"T:%02d.%02d H:%02d.%02d%%",
 				temperature/100,temperature%100,
 				humid/100,humid%100);
-
-			EPD_Printf(20,150,font14,WHITE,
-			"rawDat:%02X,%02X,%02X,%02X,%02X,%02X.",
-			rawData[0],rawData[1],rawData[2],rawData[3],rawData[4],rawData[5]);
 
 			//send dispaly data, partial refresh 8 times.
 			if(refreshCount < 8)

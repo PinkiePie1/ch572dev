@@ -314,13 +314,13 @@ uint16_t RF_ProcessEvent(uint8_t task_id, uint16_t events)
 		{
 			if (img_index == 0)
 			{
-				memcpy(imageCache,gImage_black,5000);
-				textcolor = WHITE;
+				memcpy(imageCache,gImage_alicew,5000);
+				textcolor = BLACK;
 			}
 			else if (img_index == 1)
 			{
-				memcpy(imageCache,gImage_white,5000);
-				textcolor = BLACK;
+				memcpy(imageCache,gImage_aliceb,5000);
+				textcolor = WHITE;
 			}
 			else
 			{
@@ -331,11 +331,11 @@ uint16_t RF_ProcessEvent(uint8_t task_id, uint16_t events)
 			paint_SetImageCache(imageCache);
             
 
-			EPD_Printf(0,198,font14,textcolor,
+			EPD_Printf(0,0,font16,textcolor,
 				"T:%02d.%02d",
 				temperature/100,temperature%100
 				);
-			EPD_Printf(16,198,font14,textcolor,
+			EPD_Printf(0,16,font16,textcolor,
 				"H:%02d.%02d%%",
 				humid/100,humid%100
 				);
