@@ -89,15 +89,6 @@ target("ch572")
 	end
 
 
-target("ch572ble")
-	set_kind("static")
-	add_rules("c") --加这一行，这样xmake才知道这是c文件的library
-
-	add_files("CH572libs/BLELIB/*.a")
-
-	add_includedirs("CH572libs/BLELIB",{public = true})	
-
-
 -- 生成bin和hex文件
 rule("generateAll")
     after_build(function (target,opt)

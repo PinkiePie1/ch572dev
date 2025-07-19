@@ -19,7 +19,7 @@ void main(void)
     SetSysClock(CLK_SOURCE_HSE_PLL_100MHz);
 	GPIOInit();
 
-	memcpy(imageCache, gImage_white1, 5000);
+	memcpy(imageCache, gImage_alicew, 5000);
 	
 	paint_SetImageCache(imageCache);
 
