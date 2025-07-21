@@ -32,6 +32,7 @@ void main(void)
 	drawStr(50,150,"test 1",font14,WHITE);
 	fastDrawString(70,150,"fast",font14);
 
+
 	EPD_Init();	
 	EPD_SendDisplay(imageCache);
 	EPD_Sleep();
