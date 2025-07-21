@@ -124,31 +124,6 @@ static void EPD_HardReset(void)
 	//devDelay(10);
 }
 
-//写入波形控制的LUT，通过改变LUT数组可以控制波形
-//不应该直接调用，它是给初始化函数用的。
-static void EPD_LUT(const uint8_t *lutPtr)
-{
-	EPD_Cmd(0x32);
-	
-	for(uint16_t i=0; i<153; i++)
-	{
-		EPD_Dat( lutPtr[i] );
-	}
-	
-	WAIT_BUSY;
-	EPD_Cmd( 0x3F );
-	EPD_Dat( lutPtr[153] );
-	EPD_Cmd( 0x03 );
-	EPD_Dat( lutPtr[154] );
-	EPD_Cmd( 0x04 );
-	EPD_Dat( lutPtr[155] );
-	EPD_Dat( lutPtr[156] );
-	EPD_Dat( lutPtr[157] );
-	EPD_Cmd( 0x2c );
-	EPD_Dat( lutPtr[158] );
-	
-}
-
 //设置显示窗口
 static void EPD_SetWindows( uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_t Yend )
 {
@@ -241,13 +216,13 @@ void EPD_Clear(void)
 	EPD_Cmd(0x10);
 	for(uint32_t i = 0; i < 2888; i++)
 	{
-		EPD_Dat(0xFF);
+		EPD_Dat(0x00);
 	}
 
 	EPD_Cmd(0x13);
 	for(uint32_t i = 0; i < 2888; i++)
 	{
-		EPD_Dat((uint8_t)i);
+		EPD_Dat(0x00);
 	}
 
 
@@ -298,41 +273,16 @@ void EPD_SendDisplay(uint8_t *image)
 
 void EPD_PartialDisplay(uint8_t *image)
 {
-	//硬重置
-	EPD_HardReset();
-	devDelay( 100 );
-
-	//EPD_LUT(MyPartialLUT);
-	//可以不用指定WS，因为用的是内存里的LUT
-	/*
-	EPD_Cmd( 0x37 );
-	EPD_Dat( 0x00 );
-	EPD_Dat( 0x00 );
-	EPD_Dat( 0x00 );
-	EPD_Dat( 0x00 );
-	EPD_Dat( 0x00 );
-	EPD_Dat( 0x40|1<<6 );
-	EPD_Dat( 0x00 );
-	EPD_Dat( 0x00 );
-	EPD_Dat( 0x00 );
-	EPD_Dat( 0x00 );
-*/
-    //边框颜色,这里边框接地
-	EPD_Cmd( 0x3C );
-	EPD_Dat( 0x80 );
-
-	//可以不用先开启analog，等刷新指令的时候再开也不迟
-/*
-	EPD_Cmd( 0x22 );
-	EPD_Dat( 0xC0 );
-	EPD_Cmd( 0x20 );
+	//启动
+	EPD_Cmd( 0x04 );
 	WAIT_BUSY;
-*/	
-	EPD_SetWindows(0, 0, EPD_WIDTH-1, EPD_HEIGHT-1);
-	EPD_SetCursor(0, 0);
 
-//传送显示数据，不需要传送0x26
-	EPD_Cmd(0x24);
+    //上LUT
+	//进入partial模式
+	//设置partial window
+    
+//传送显示数据
+	EPD_Cmd(0x13);
 #if(defined(REVERSED)) && (REVERSED == 1)
     R8_SPI_CTRL_CFG |= RB_SPI_BIT_ORDER;
 	for (int i=2887;i>=0;i--){
@@ -346,6 +296,8 @@ void EPD_PartialDisplay(uint8_t *image)
 	CS_HIGH;
 #endif
 	EPD_PartialUpdate();
+
+	//出partial模式
 }
 
 //让屏幕睡眠
