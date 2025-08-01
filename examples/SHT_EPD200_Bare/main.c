@@ -105,7 +105,7 @@ measure:
 	sys_safe_access_disable();
 
 	uint32_t alarm = (uint32_t) R16_RTC_CNT_LSI | ( (uint32_t) R16_RTC_CNT_DIV1 << 16 );
-	alarm += 640000;
+	alarm += 32000*30;
 
 	sys_safe_access_enable();
 	R32_RTC_TRIG = alarm;   
