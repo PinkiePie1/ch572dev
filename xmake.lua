@@ -1,4 +1,5 @@
 set_policy("build.intermediate_directory", false)
+add_rules("c.unity_build")
 
 function check_ld()
 	local local_ld = os.scriptdir() .. "/link.ld"
@@ -9,6 +10,7 @@ function check_ld()
 		add_cflags("-ICH572libs/Ld")
 	end
 end
+
 
 includes("ch572.lua")
 
