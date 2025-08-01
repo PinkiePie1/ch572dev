@@ -314,12 +314,12 @@ uint16_t RF_ProcessEvent(uint8_t task_id, uint16_t events)
 		{
 			if (img_index == 0)
 			{
-				memcpy(imageCache,gImage_alicew,5000);
+				tmos_memcpy(imageCache,gImage_alicew,5000);
 				textcolor = BLACK;
 			}
 			else if (img_index == 1)
 			{
-				memcpy(imageCache,gImage_aliceb,5000);
+				tmos_memcpy(imageCache,gImage_aliceb,5000);
 				textcolor = WHITE;
 			}
 			else
