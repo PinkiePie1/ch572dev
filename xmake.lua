@@ -1,5 +1,5 @@
 set_policy("build.intermediate_directory", false)
-add_rules("c.unity_build")
+--add_rules("c.unity_build")
 
 function check_ld()
 	local local_ld = os.scriptdir() .. "/link.ld"

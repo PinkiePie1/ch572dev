@@ -63,6 +63,9 @@ void main(void)
     gTxParam.txDMA = (uint32_t)TxBuf;
     gTxParam.waitTime = 40*2; // 如果需要切换通道发送，稳定时间不低于80us
 
+	PFIC_EnableIRQ( BLEB_IRQn );
+    PFIC_EnableIRQ( BLEL_IRQn );
+
 	// 初始化发送的数据，后面改成memcpy形式
 	//广播类型
 	TxBuf[0] = 0x02;     
@@ -134,4 +137,19 @@ void RTC_IRQHandler(void)
 {
 	R8_RTC_FLAG_CTRL =  RB_RTC_TRIG_CLR;
 
+}
+
+//这两个是包含在库和例程里的，不知道有没有用
+__INTERRUPT
+__HIGH_CODE
+void LLE_IRQHandler( void )
+{
+    LLE_LibIRQHandler( );
+}
+
+__INTERRUPT
+__HIGH_CODE
+void BB_IRQHandler( void )
+{
+    BB_LibIRQHandler( );
 }
