@@ -23,7 +23,6 @@ uint8_t rawData[9];
 
 //sleep.
 
-#define LED GPIO_Pin_9
 
 
 void MySleep(uint8_t use5v);
@@ -67,10 +66,6 @@ void RF_ProcessCallBack( rfRole_States_t sta,uint8_t id  )
 	if( sta&RF_STATE_TX_FINISH )
     {
     	tx_flag = 0;
-		GPIOA_SetBits(LED);
-     	RTC_TRIGFunCfg(32*60000);
-        //LowPower_Sleep(RB_PWR_RAM12K | RB_PWR_EXTEND | RB_XT_PRE_EN );
-        LowPower_Shutdown(0);
     }
     if( sta&RF_STATE_TIMEOUT )
     {
@@ -90,8 +85,48 @@ void main(void)
 	EPD_Sleep();
 	SoftI2CInit();
 
-	PFIC_DisableIRQ( RTC_IRQn );
+    sys_safe_access_enable( );
+    R32_MISC_CTRL = (R32_MISC_CTRL&(~(0x3f<<24)))|(0xe<<24);
+    sys_safe_access_disable( );
 
+	sys_safe_access_enable();
+	R32_RTC_TRIG = 0;
+	R32_RTC_CTRL |= RB_RTC_LOAD_HI;
+	R32_RTC_CTRL |= RB_RTC_LOAD_LO;
+	R8_RTC_MODE_CTRL |= RB_RTC_TRIG_EN;  //enable RTC trigger
+   	R8_SLP_WAKE_CTRL |= RB_SLP_RTC_WAKE; // enable wakeup control
+	sys_safe_access_disable();
+	
+	//基本设置
+	rfRoleConfig_t conf ={0};
+	conf.rfProcessCB = RF_ProcessCallBack;
+	conf.processMask = RF_STATE_TX_FINISH|RF_STATE_TIMEOUT;
+	RFRole_BasicInit( &conf );
+
+	//tx相关参数
+	gTxParam.accessAddress = 0X8e89bed6;
+	gTxParam.accessAddressEx = 0;
+	gTxParam.crcInit = 0X555555;
+	gTxParam.crcPoly = 0x80032d;
+	gTxParam.properties = 0;
+	gTxParam.waitTime = 80*2;
+	gTxParam.txPowerVal = LL_TX_POWEER_0_DBM;
+	gTxParam.whiteChannel=0x37; // whitening channel
+	gTxParam.txLen = 34;
+    gTxParam.frequency = 37;//37信道，注意和上面的0x37对应但不一样。考虑
+    gTxParam.txDMA = (uint32_t)TxBuf;
+    gTxParam.waitTime = 40*2; // 如果需要切换通道发送，稳定时间不低于80us
+
+	// 初始化发送的数据
+	memcpy(TxBuf,advert_data,sizeof(advert_data));
+	TxBuf[1] = (uint8_t) (sizeof(advert_data)-2);
+
+	PFIC_EnableIRQ( BLEB_IRQn );
+    PFIC_EnableIRQ( BLEL_IRQn );
+    PFIC_EnableIRQ( RTC_IRQn );
+    PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_RTC_WAKE, Fsys_Delay_4096);//开启RTC唤醒使能
+
+measure:
 	SHT40_beginMeasure();
 	DelayMs(3);
 	SHT40_getDat(rawData);
@@ -151,54 +186,19 @@ void main(void)
 	
     PFIC_EnableIRQ(GPIO_A_IRQn);
 	LowPower_Sleep(RB_PWR_RAM12K);
+	HSECFG_Current(HSE_RCur_100);
 	EPD_Sleep();
+	RFIP_WakeUpRegInit();
 
-    sys_safe_access_enable( );
-    R32_MISC_CTRL = (R32_MISC_CTRL&(~(0x3f<<24)))|(0xe<<24);
-    sys_safe_access_disable( );
-	
-	//基本设置
-	rfRoleConfig_t conf ={0};
-	conf.rfProcessCB = RF_ProcessCallBack;
-	conf.processMask = RF_STATE_TX_FINISH|RF_STATE_TIMEOUT;
-	RFRole_BasicInit( &conf );
+	tx_flag = 1;
+	RFIP_StartTx( &gTxParam );
+	do{__nop();}while(tx_flag == 1); // 等待发送完成
+	RTC_TRIGFunCfg(32*60000);
+	LowPower_Sleep(RB_PWR_RAM12K | RB_PWR_EXTEND | RB_XT_PRE_EN );
+	HSECFG_Current(HSE_RCur_100);	
+	RFIP_WakeUpRegInit();
+	goto measure;
 
-	//tx相关参数
-	gTxParam.accessAddress = 0X8e89bed6;
-	gTxParam.accessAddressEx = 0;
-	gTxParam.crcInit = 0X555555;
-	gTxParam.crcPoly = 0x80032d;
-	gTxParam.properties = 0;
-	gTxParam.waitTime = 80*2;
-	gTxParam.txPowerVal = LL_TX_POWEER_0_DBM;
-	gTxParam.whiteChannel=0x37; // whitening channel
-	gTxParam.txLen = 34;
-    gTxParam.frequency = 37;//37信道，注意和上面的0x37对应但不一样。考虑
-    gTxParam.txDMA = (uint32_t)TxBuf;
-    gTxParam.waitTime = 40*2; // 如果需要切换通道发送，稳定时间不低于80us
-
-	sys_safe_access_enable();
-	R32_RTC_TRIG = 0;
-	R32_RTC_CTRL |= RB_RTC_LOAD_HI;
-	R32_RTC_CTRL |= RB_RTC_LOAD_LO;
-	R8_RTC_MODE_CTRL |= RB_RTC_TRIG_EN;  //enable RTC trigger
-   	R8_SLP_WAKE_CTRL |= RB_SLP_RTC_WAKE; // enable wakeup control
-	sys_safe_access_disable();
-
-	PFIC_EnableIRQ( BLEB_IRQn );
-    PFIC_EnableIRQ( BLEL_IRQn );
-    PFIC_EnableIRQ( RTC_IRQn );
-    PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_RTC_WAKE, Fsys_Delay_4096);//开启RTC唤醒使能
-
-	// 初始化发送的数据
-	memcpy(TxBuf,advert_data,sizeof(advert_data));
-	TxBuf[1] = (uint8_t) (sizeof(advert_data)-2);
-
-	while(1){
-		tx_flag = 1;
-		RFIP_StartTx( &gTxParam );
-		while(1){if(tx_flag==0){break;}};	
-	};
 
 }
 

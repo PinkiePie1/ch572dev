@@ -73,7 +73,7 @@ extern const uint8_t VER_RF_LIB[];  // LIB version
 #define ABS(n)     (((n) < 0) ? -(n) : (n))
 #endif
 
-/* TxPower define(Accuracy:¡À2dBm) */
+/* TxPower define(Accuracy:ï¿½ï¿½2dBm) */
 #define LL_TX_POWEER_MINUS_25_DBM       0x01
 #define LL_TX_POWEER_MINUS_20_DBM       0x02
 #define LL_TX_POWEER_MINUS_15_DBM       0x03
