@@ -4,6 +4,10 @@ BUILD_DIR = objs
 $(info lib file location: $(SELF_DIR))
 $(info build output dir at : $(BUILD_DIR))
 
+#项目根目录
+C_SOURCES += \
+$(wildcard ./*.c)
+
 #标准库
 C_SOURCES += \
 $(wildcard $(SELF_DIR)CH572Libs/StdPeriphDriver/*.c) 
@@ -15,17 +19,12 @@ C_INCLUDES +=	\
 -I"$(SELF_DIR)CH572Libs/RVMSIS"
 
 #项目根目录
-C_SOURCES += \
-$(wildcard ./*.c)
+
 
 C_INCLUDES += -I"./"
 
 #startup部分
 ASM_SOURCES += $(SELF_DIR)CH572libs/Startup/startup_CH572.S
-
-ifdef $(CH572_BLE)
-    C_INCLUDES += -I"$(SELF_DIR)CH572libs/BLELIB"
-endif
 
 # AS includes
 AS_INCLUDES += -I"$(SELF_DIR)CH572Libs/Startup" 
@@ -85,10 +84,10 @@ $(OPT)\
 --param=highcode-gen-section-name=1\
 -g\
 $(C_DEFS)\
--std=gnu17 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)"
+-std=gnu17 #-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)"
 
-
-ASFLAGS = $(ARCH)
+ASFlags = $(AS_INCLUDES)
+ASFLAGS += $(ARCH)
 ASFLAGS += -mcmodel=medany\
 -msmall-data-limit=8\
 -mno-save-restore\
@@ -102,16 +101,12 @@ $(OPT)\
 --param=highcode-gen-section-name=1\
 -g\
 -x assembler-with-cpp\
-$(AS_INCLUDES)\
--MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)"
+#\
+#-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)"
 
-LIBDIR = -L"$(SELF_DIR)CH572libs/StdPeriphDriver" -L"../"
+LIBDIR += -L"$(SELF_DIR)CH572libs/StdPeriphDriver" -L"../"
 
-ifdef $(CH572_BLE)
-LIBDIR += -L"$(SELF_DIR)CH572libs/BLELIB"
-endif
-
-LIBS = -lm -lISP572
+LIBS += -lm -lISP572
 
 LDFLAGS  = $(ARCH)
 LDFLAGS += -mcmodel=medany\
@@ -139,13 +134,16 @@ all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET
 #######################################
 # Build the application
 #######################################
-# list of objects
-OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
-vpath %.c $(sort $(dir $(C_SOURCES)))
+
+
 
 # list of ASM program objects
-OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.S=.o)))
+OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.S=.o)))
 vpath %.S $(sort $(dir $(ASM_SOURCES)))
+
+# list of objects
+OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
+vpath %.c $(sort $(dir $(C_SOURCES)))
 
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
 	$(info Compiling c source: $<)
