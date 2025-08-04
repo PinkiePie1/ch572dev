@@ -40,6 +40,38 @@ const uint8_t advert_data[]={
 };
 
 __HIGH_CODE
+void MySleep(uint8_t use5v)
+{
+    uint16_t ldoconfig = 0;
+	if(use5v)
+    {
+        ldoconfig |= RB_PWR_LDO5V_EN;
+    }
+    sys_safe_access_enable();
+	R8_CLK_SYS_CFG = CLK_SOURCE_HSE_PLL_60MHz;
+    sys_safe_access_disable();
+
+	PFIC->SCTLR |= (1 << 2); //deep sleep
+    ldoconfig |= RB_PWR_PLAN_EN | RB_PWR_CORE | RB_PWR_RAM12K |(1<<12) ;
+    sys_safe_access_enable();
+ 	R8_SLP_POWER_CTRL |= 0x40; //longest wake up delay
+  	R16_POWER_PLAN = ldoconfig;
+    sys_safe_access_disable();
+	
+	asm volatile ("wfi\nnop\nnop" );
+	uint16_t i = 400;
+    do {
+    __nop();
+    }while (i--);
+    sys_safe_access_enable();
+    R16_POWER_PLAN &= ~RB_PWR_PLAN_EN;
+    R16_POWER_PLAN &= ~RB_XT_PRE_EN;
+    R8_CLK_SYS_CFG = CLK_SOURCE_HSE_PLL_100MHz;
+    sys_safe_access_disable();
+
+}
+
+__HIGH_CODE
 void RF_ProcessCallBack( rfRole_States_t sta,uint8_t id  )
 {
 
@@ -55,7 +87,10 @@ void RF_ProcessCallBack( rfRole_States_t sta,uint8_t id  )
 
 void main(void)
 {
-	SetSysClock(CLK_SOURCE_HSE_PLL_100MHz);
+    sys_safe_access_enable();
+    R8_CLK_SYS_CFG = CLK_SOURCE_HSE_PLL_100MHz;
+    sys_safe_access_disable();
+    
 	GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
 
 	EPD_Hal_Init();
@@ -167,8 +202,7 @@ measure:
 	free(imageCache);
 
 	PFIC_EnableIRQ( GPIO_A_IRQn) ;
-	LowPower_Sleep(RB_PWR_RAM12K | RB_PWR_EXTEND | RB_XT_PRE_EN);
-	HSECFG_Current(HSE_RCur_100);
+	MySleep(0);
 	EPD_Sleep();
 	RFIP_WakeUpRegInit();
 	PFIC_DisableIRQ( GPIO_A_IRQn) ;
@@ -191,14 +225,12 @@ measure:
 		RFIP_StartTx( &gTxParam );
 		do{__nop();}while(tx_flag == 1); // 等待发送完成
 		RTC_TRIGFunCfg(32*200);
-		LowPower_Sleep(RB_PWR_RAM12K | RB_PWR_EXTEND | RB_XT_PRE_EN );
-		HSECFG_Current(HSE_RCur_100);	
+		MySleep(0);	
 		RFIP_WakeUpRegInit();
 	}
 
 	RTC_TRIGFunCfg(32*60000);
-	LowPower_Sleep(RB_PWR_RAM12K | RB_PWR_EXTEND | RB_XT_PRE_EN );
-	HSECFG_Current(HSE_RCur_100);	
+	MySleep(0);	
 	RFIP_WakeUpRegInit();
 
 	goto measure;

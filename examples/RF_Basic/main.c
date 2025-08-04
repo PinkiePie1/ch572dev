@@ -32,7 +32,6 @@ void RF_ProcessCallBack( rfRole_States_t sta,uint8_t id  )
 	if( sta&RF_STATE_TX_FINISH )
     {
     	tx_flag = 0;
-。
     }
     if( sta&RF_STATE_TIMEOUT )
     {
