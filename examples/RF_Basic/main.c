@@ -32,8 +32,7 @@ void RF_ProcessCallBack( rfRole_States_t sta,uint8_t id  )
 	if( sta&RF_STATE_TX_FINISH )
     {
     	tx_flag = 0;
-
-        //LowPower_Shutdown(0);//换成shutdown没问题。
+。
     }
     if( sta&RF_STATE_TIMEOUT )
     {
@@ -45,7 +44,6 @@ __HIGH_CODE
 void main(void)
 {
 	SetSysClock(CLK_SOURCE_HSE_PLL_100MHz);
-
 	GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
 	GPIOA_SetBits(LED);
 	GPIOA_ModeCfg(LED,GPIO_ModeOut_PP_5mA);
@@ -93,11 +91,23 @@ void main(void)
 
 	while(1){
 		GPIOA_ResetBits(LED);
+		gTxParam.whiteChannel=0x37; 
+		gTxParam.frequency = 37;
+		tx_flag = 1;
+		RFIP_StartTx( &gTxParam );
+		do{__nop();}while(tx_flag == 1); // 等待发送完成
+		gTxParam.whiteChannel=0x38; 
+		gTxParam.frequency = 38;
+		tx_flag = 1;
+		RFIP_StartTx( &gTxParam );
+		do{__nop();}while(tx_flag == 1); // 等待发送完成
+		gTxParam.whiteChannel=0x39; 
+		gTxParam.frequency = 39;
 		tx_flag = 1;
 		RFIP_StartTx( &gTxParam );
 		do{__nop();}while(tx_flag == 1); // 等待发送完成
 		GPIOA_SetBits(LED);
-		RTC_TRIGFunCfg(32*2000);
+		RTC_TRIGFunCfg(32*200);
 		LowPower_Sleep(RB_PWR_RAM12K | RB_PWR_EXTEND | RB_XT_PRE_EN );
 		HSECFG_Current(HSE_RCur_100);	
 		RFIP_WakeUpRegInit();

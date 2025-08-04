@@ -20,6 +20,7 @@ uint8_t *imageCache;
 uint8_t refreshCount = 250;
 uint8_t img_index = 0;
 uint8_t rawData[9];
+rfRoleConfig_t conf ={0};
 
 //sleep.
 
@@ -35,29 +36,8 @@ const uint8_t advert_data[]={
 	0x02,
 	0x00,//长度,后面再填入
 	0x1A,0x2A,0x3A,0x4A,0x5A,0x6A,//MAC地址，反过来的
-	0x02,0x09,'X' //完整名字	
+	0x02,0x09,'Y' //完整名字	
 };
-
-__HIGH_CODE
-void MyDelay(uint32_t j)
-{
-	do{
-		uint16_t i = 400;
-	    do {
-	    __nop();
-	    }while (i--);
-    } while (j--);
-}
-
-void RTC_Set(void)
-{
-	uint32_t alarm = (uint32_t) R16_RTC_CNT_LSI | ( (uint32_t) R16_RTC_CNT_DIV1 << 16 );
-	alarm += 32*300; //300ms
-
-	sys_safe_access_enable();
-	R32_RTC_TRIG = alarm;   
-	sys_safe_access_disable();
-}
 
 __HIGH_CODE
 void RF_ProcessCallBack( rfRole_States_t sta,uint8_t id  )
@@ -75,9 +55,9 @@ void RF_ProcessCallBack( rfRole_States_t sta,uint8_t id  )
 
 void main(void)
 {
-	HSECFG_Capacitance(HSECap_18p);
 	SetSysClock(CLK_SOURCE_HSE_PLL_100MHz);
 	GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
+
 	EPD_Hal_Init();
     GPIOA_ITModeCfg(EPD_BUSY_PIN, GPIO_ITMode_FallEdge); 
     PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_GPIO_WAKE, Fsys_Delay_4096);
@@ -88,17 +68,9 @@ void main(void)
     sys_safe_access_enable( );
     R32_MISC_CTRL = (R32_MISC_CTRL&(~(0x3f<<24)))|(0xe<<24);
     sys_safe_access_disable( );
-
-	sys_safe_access_enable();
-	R32_RTC_TRIG = 0;
-	R32_RTC_CTRL |= RB_RTC_LOAD_HI;
-	R32_RTC_CTRL |= RB_RTC_LOAD_LO;
-	R8_RTC_MODE_CTRL |= RB_RTC_TRIG_EN;  //enable RTC trigger
-   	R8_SLP_WAKE_CTRL |= RB_SLP_RTC_WAKE; // enable wakeup control
-	sys_safe_access_disable();
 	
 	//基本设置
-	rfRoleConfig_t conf ={0};
+
 	conf.rfProcessCB = RF_ProcessCallBack;
 	conf.processMask = RF_STATE_TX_FINISH|RF_STATE_TIMEOUT;
 	RFRole_BasicInit( &conf );
@@ -117,9 +89,13 @@ void main(void)
     gTxParam.txDMA = (uint32_t)TxBuf;
     gTxParam.waitTime = 40*2; // 如果需要切换通道发送，稳定时间不低于80us
 
-	// 初始化发送的数据
-	memcpy(TxBuf,advert_data,sizeof(advert_data));
-	TxBuf[1] = (uint8_t) (sizeof(advert_data)-2);
+	sys_safe_access_enable();
+	R32_RTC_TRIG = 0;
+	R32_RTC_CTRL |= RB_RTC_LOAD_HI;
+	R32_RTC_CTRL |= RB_RTC_LOAD_LO;
+	R8_RTC_MODE_CTRL |= RB_RTC_TRIG_EN;  //enable RTC trigger
+   	R8_SLP_WAKE_CTRL |= RB_SLP_RTC_WAKE; // enable wakeup control
+	sys_safe_access_disable();
 
 	PFIC_EnableIRQ( BLEB_IRQn );
     PFIC_EnableIRQ( BLEL_IRQn );
@@ -127,6 +103,10 @@ void main(void)
     PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_RTC_WAKE, Fsys_Delay_4096);//开启RTC唤醒使能
 
 measure:
+	// 初始化发送的数据
+	memcpy(TxBuf,advert_data,sizeof(advert_data));
+	TxBuf[1] = (uint8_t) (sizeof(advert_data)-2);
+
 	SHT40_beginMeasure();
 	DelayMs(3);
 	SHT40_getDat(rawData);
@@ -141,6 +121,8 @@ measure:
 
 	temperature = temperature - 4500;
 	humid = humid-600;
+
+	TxBuf[sizeof(advert_data)-1] = 'T';
 
 	imageCache = malloc(5000);
 	uint8_t textcolor = BLACK;
@@ -183,55 +165,44 @@ measure:
 	}
 
 	free(imageCache);
-	
-    PFIC_EnableIRQ(GPIO_A_IRQn);
-	LowPower_Sleep(RB_PWR_RAM12K);
+
+	PFIC_EnableIRQ( GPIO_A_IRQn) ;
+	LowPower_Sleep(RB_PWR_RAM12K | RB_PWR_EXTEND | RB_XT_PRE_EN);
 	HSECFG_Current(HSE_RCur_100);
 	EPD_Sleep();
 	RFIP_WakeUpRegInit();
+	PFIC_DisableIRQ( GPIO_A_IRQn) ;
 
-	tx_flag = 1;
-	RFIP_StartTx( &gTxParam );
-	do{__nop();}while(tx_flag == 1); // 等待发送完成
+	for(uint16_t i = 0;i<3;i++)
+	{
+		gTxParam.whiteChannel=0x37; 
+		gTxParam.frequency = 37;
+		tx_flag = 1;
+		RFIP_StartTx( &gTxParam );
+		do{__nop();}while(tx_flag == 1); // 等待发送完成
+		gTxParam.whiteChannel=0x38; 
+		gTxParam.frequency = 38;
+		tx_flag = 1;
+		RFIP_StartTx( &gTxParam );
+		do{__nop();}while(tx_flag == 1); // 等待发送完成
+		gTxParam.whiteChannel=0x39; 
+		gTxParam.frequency = 39;
+		tx_flag = 1;
+		RFIP_StartTx( &gTxParam );
+		do{__nop();}while(tx_flag == 1); // 等待发送完成
+		RTC_TRIGFunCfg(32*200);
+		LowPower_Sleep(RB_PWR_RAM12K | RB_PWR_EXTEND | RB_XT_PRE_EN );
+		HSECFG_Current(HSE_RCur_100);	
+		RFIP_WakeUpRegInit();
+	}
+
 	RTC_TRIGFunCfg(32*60000);
 	LowPower_Sleep(RB_PWR_RAM12K | RB_PWR_EXTEND | RB_XT_PRE_EN );
 	HSECFG_Current(HSE_RCur_100);	
 	RFIP_WakeUpRegInit();
+
 	goto measure;
 
-
-}
-
-
-__HIGH_CODE
-void MySleep(uint8_t use5v)
-{
-    uint16_t ldoconfig = 0;
-	if(use5v)
-    {
-        ldoconfig |= RB_PWR_LDO5V_EN;
-    }
-    sys_safe_access_enable();
-	R8_CLK_SYS_CFG = CLK_SOURCE_HSE_PLL_60MHz;
-    sys_safe_access_disable();
-
-	PFIC->SCTLR |= (1 << 2); //deep sleep
-    ldoconfig |=  RB_PWR_PLAN_EN | RB_PWR_CORE | RB_PWR_RAM12K | RB_PWR_EXTEND | RB_XT_PRE_EN |(1<<12) ;
-    sys_safe_access_enable();
- 	R8_SLP_POWER_CTRL |= 0x40; //longest wake up delay
-  	R16_POWER_PLAN = ldoconfig;
-    sys_safe_access_disable();
-	
-	asm volatile ("wfi\nnop\nnop" );
-	uint16_t i = 400;
-    do {
-    __nop();
-    }while (i--);
-    sys_safe_access_enable();
-    R16_POWER_PLAN &= ~RB_PWR_PLAN_EN;
-    R16_POWER_PLAN &= ~RB_XT_PRE_EN;
-    R8_CLK_SYS_CFG = CLK_SOURCE_HSE_PLL_100MHz;
-    sys_safe_access_disable();
 
 }
 
