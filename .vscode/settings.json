@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "epd_1in54_ssd1680.h": "c",
-        "ch57x_common.h": "c"
+        "ch57x_common.h": "c",
+        "minigui.h": "c"
     }
 }

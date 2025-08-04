@@ -7,18 +7,58 @@
  *********************************************************************************/
 #include "CH57x_common.h"
 #include "main.h"
+#include "miniGUI.h"
+#include "imageData.h"
+#include "SHT40.h"
+#include "EPD_1IN54_SSD1681.h"
 #include <CH572rf.h>
+#include <stdlib.h>
 
-#define   AA           0X8e89bed6;
-#define   AA_EX        0
-#define   CRC_INIT     0X555555
-#define   CRC_POLY     0x80032d
+uint32_t humid;
+uint32_t temperature;
+uint8_t *imageCache;
+uint8_t refreshCount = 250;
+uint8_t img_index = 0;
+uint8_t rawData[9];
 
 //sleep.
+
+#define LED GPIO_Pin_9
+
+
 void MySleep(uint8_t use5v);
 
 rfipTx_t gTxParam;
+uint8_t tx_flag = 0;
 __attribute__((__aligned__(4))) uint8_t TxBuf[64];
+
+const uint8_t advert_data[]={
+	0x02,
+	0x00,//长度,后面再填入
+	0x1A,0x2A,0x3A,0x4A,0x5A,0x6A,//MAC地址，反过来的
+	0x02,0x09,'X' //完整名字	
+};
+
+__HIGH_CODE
+void MyDelay(uint32_t j)
+{
+	do{
+		uint16_t i = 400;
+	    do {
+	    __nop();
+	    }while (i--);
+    } while (j--);
+}
+
+void RTC_Set(void)
+{
+	uint32_t alarm = (uint32_t) R16_RTC_CNT_LSI | ( (uint32_t) R16_RTC_CNT_DIV1 << 16 );
+	alarm += 32*300; //300ms
+
+	sys_safe_access_enable();
+	R32_RTC_TRIG = alarm;   
+	sys_safe_access_disable();
+}
 
 __HIGH_CODE
 void RF_ProcessCallBack( rfRole_States_t sta,uint8_t id  )
@@ -26,23 +66,97 @@ void RF_ProcessCallBack( rfRole_States_t sta,uint8_t id  )
 
 	if( sta&RF_STATE_TX_FINISH )
     {
-		PRINT("TX finished.");
+    	tx_flag = 0;
+		GPIOA_SetBits(LED);
+     	RTC_TRIGFunCfg(32*60000);
+        //LowPower_Sleep(RB_PWR_RAM12K | RB_PWR_EXTEND | RB_XT_PRE_EN );
+        LowPower_Shutdown(0);
     }
     if( sta&RF_STATE_TIMEOUT )
     {
-        PRINT("tx error");   
+    	  	
     }
 }
 
 void main(void)
 {
+	HSECFG_Capacitance(HSECap_18p);
 	SetSysClock(CLK_SOURCE_HSE_PLL_100MHz);
+	GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
+	EPD_Hal_Init();
+    GPIOA_ITModeCfg(EPD_BUSY_PIN, GPIO_ITMode_FallEdge); 
+    PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_GPIO_WAKE, Fsys_Delay_4096);
+	EPD_Init();	
+	EPD_Sleep();
+	SoftI2CInit();
 
-	//没人知道为什么需要这些
+	PFIC_DisableIRQ( RTC_IRQn );
+
+	SHT40_beginMeasure();
+	DelayMs(3);
+	SHT40_getDat(rawData);
+
+	humid = (rawData[3] << 8);
+	humid |= rawData[4];
+	humid = (humid >> 3) + (humid >> 4) + (humid >> 9) + (humid >> 10);
+
+	temperature = (rawData[0] << 8);
+	temperature |= rawData[1];
+	temperature = (temperature >> 2) + (temperature >> 6) + (temperature >> 10);
+
+	temperature = temperature - 4500;
+	humid = humid-600;
+
+	imageCache = malloc(5000);
+	uint8_t textcolor = BLACK;
+	img_index = (0x0001&temperature);
+	if(imageCache != NULL)
+	{
+		if (img_index == 0)
+		{
+			memcpy(imageCache,gImage_alicew,5000);
+			textcolor = BLACK;
+		}
+		else if (img_index == 1)
+		{
+			memcpy(imageCache,gImage_aliceb,5000);
+			textcolor = WHITE;
+		}
+		else
+		{
+			img_index = 0;
+		}
+
+		paint_SetImageCache(imageCache);
+
+		EPD_Printf(0,0,font16,textcolor,"T:%02d.%02d",temperature/100,temperature%100);
+		EPD_Printf(0,16,font16,textcolor,"H:%02d.%02d%%",humid/100,humid%100);
+
+		//send dispaly data, partial refresh 8 times.
+
+		if(refreshCount < 5)
+		{	
+			EPD_PartialDisplay(imageCache);
+			refreshCount++;
+		}
+		else
+		{
+			EPD_Init();	
+			EPD_SendDisplay(imageCache);
+			refreshCount = 0;			
+		}
+	}
+
+	free(imageCache);
+	
+    PFIC_EnableIRQ(GPIO_A_IRQn);
+	LowPower_Sleep(RB_PWR_RAM12K);
+	EPD_Sleep();
+
     sys_safe_access_enable( );
     R32_MISC_CTRL = (R32_MISC_CTRL&(~(0x3f<<24)))|(0xe<<24);
     sys_safe_access_disable( );
-
+	
 	//基本设置
 	rfRoleConfig_t conf ={0};
 	conf.rfProcessCB = RF_ProcessCallBack;
@@ -63,31 +177,29 @@ void main(void)
     gTxParam.txDMA = (uint32_t)TxBuf;
     gTxParam.waitTime = 40*2; // 如果需要切换通道发送，稳定时间不低于80us
 
+	sys_safe_access_enable();
+	R32_RTC_TRIG = 0;
+	R32_RTC_CTRL |= RB_RTC_LOAD_HI;
+	R32_RTC_CTRL |= RB_RTC_LOAD_LO;
+	R8_RTC_MODE_CTRL |= RB_RTC_TRIG_EN;  //enable RTC trigger
+   	R8_SLP_WAKE_CTRL |= RB_SLP_RTC_WAKE; // enable wakeup control
+	sys_safe_access_disable();
+
 	PFIC_EnableIRQ( BLEB_IRQn );
     PFIC_EnableIRQ( BLEL_IRQn );
+    PFIC_EnableIRQ( RTC_IRQn );
+    PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_RTC_WAKE, Fsys_Delay_4096);//开启RTC唤醒使能
 
-	// 初始化发送的数据，后面改成memcpy形式
-	//广播类型
-	TxBuf[0] = 0x02;     
-	//数据长度（MAC地址长度+数据长度）
-	TxBuf[1] =0x09;              
-	//mac地址
-	TxBuf[2] = 0x84;
-	TxBuf[3] = 0xc2;
-	TxBuf[4] = 0xe4;
-	TxBuf[5] = 0x03;
-	TxBuf[6] = 0x02;
-	TxBuf[7] = 0x22;
-	//名字
-	TxBuf[8] = 0x02;
-	TxBuf[9] = 0x09;
-	TxBuf[10] = 0x55;
+	// 初始化发送的数据
+	memcpy(TxBuf,advert_data,sizeof(advert_data));
+	TxBuf[1] = (uint8_t) (sizeof(advert_data)-2);
 
-	while(1)
-	{
+	while(1){
+		tx_flag = 1;
 		RFIP_StartTx( &gTxParam );
-		DelayMs(200);
-	}
+		while(1){if(tx_flag==0){break;}};	
+	};
+
 }
 
 
@@ -104,7 +216,7 @@ void MySleep(uint8_t use5v)
     sys_safe_access_disable();
 
 	PFIC->SCTLR |= (1 << 2); //deep sleep
-    ldoconfig |= RB_PWR_PLAN_EN | RB_PWR_CORE | RB_PWR_RAM12K |(1<<12) ;
+    ldoconfig |=  RB_PWR_PLAN_EN | RB_PWR_CORE | RB_PWR_RAM12K | RB_PWR_EXTEND | RB_XT_PRE_EN |(1<<12) ;
     sys_safe_access_enable();
  	R8_SLP_POWER_CTRL |= 0x40; //longest wake up delay
   	R16_POWER_PLAN = ldoconfig;
@@ -136,10 +248,10 @@ __HIGH_CODE
 void RTC_IRQHandler(void)
 {
 	R8_RTC_FLAG_CTRL =  RB_RTC_TRIG_CLR;
-
+	
 }
 
-//这两个是包含在库和例程里的，不知道有没有用
+//这个不能漏掉
 __INTERRUPT
 __HIGH_CODE
 void LLE_IRQHandler( void )
@@ -147,9 +259,11 @@ void LLE_IRQHandler( void )
     LLE_LibIRQHandler( );
 }
 
+
 __INTERRUPT
 __HIGH_CODE
 void BB_IRQHandler( void )
 {
     BB_LibIRQHandler( );
 }
+
