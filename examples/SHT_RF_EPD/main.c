@@ -22,6 +22,7 @@ uint8_t *imageCache;
 uint8_t refreshCount = 250;
 uint8_t img_index = 0;
 uint8_t rawData[9];
+uint8_t MacAddr[6]={0x1A,0x2A,0x3A,0x4A,0x5A,0x6A};
 rfRoleConfig_t conf ={0};
 
 //sleep.
@@ -103,6 +104,10 @@ void main(void)
 	EPD_Sleep();
 	SoftI2CInit();
 
+	//读取芯片MAC地址
+	//有需求可以启用这一行，不过会多800k字节的内存需求。
+	//FLASH_EEPROM_CMD( CMD_GET_ROM_INFO, ROM_CFG_MAC_ADDR, MacAddr, 0 );
+
     sys_safe_access_enable( );
     R32_MISC_CTRL = (R32_MISC_CTRL&(~(0x3f<<24)))|(0xe<<24);
     sys_safe_access_disable( );
@@ -143,6 +148,7 @@ void main(void)
 measure:
 	// 初始化发送的数据
 	memcpy(TxBuf,advert_data,sizeof(advert_data));
+	memcpy(TxBuf+2,MacAddr,6);
 	TxBuf[1] = (uint8_t) (sizeof(advert_data)-2);
 
 
