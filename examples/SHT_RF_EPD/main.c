@@ -14,6 +14,8 @@
 #include <CH572rf.h>
 #include <stdlib.h>
 
+#define POWER_PIN 0 //如果用5V，这里改成1
+
 uint32_t humid;
 uint32_t temperature;
 uint8_t *imageCache;
@@ -207,7 +209,7 @@ measure:
 	free(imageCache);
 
 	PFIC_EnableIRQ( GPIO_A_IRQn) ;
-	MySleep(0);
+	MySleep(POWER_PIN);
 	EPD_Sleep();
 	RFIP_WakeUpRegInit();
 	PFIC_DisableIRQ( GPIO_A_IRQn) ;
@@ -230,12 +232,12 @@ measure:
 		RFIP_StartTx( &gTxParam );
 		do{__nop();}while(tx_flag == 1); // 等待发送完成
 		RTC_TRIGFunCfg(32*200);
-		MySleep(0);	
+		MySleep(POWER_PIN);	
 		RFIP_WakeUpRegInit();
 	}
 
 	RTC_TRIGFunCfg(32768*60);
-	MySleep(0);	
+	MySleep(POWER_PIN);	
 	RFIP_WakeUpRegInit();
 
 	goto measure;
