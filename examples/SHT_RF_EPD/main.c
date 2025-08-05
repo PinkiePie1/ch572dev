@@ -36,7 +36,8 @@ const uint8_t advert_data[]={
 	0x02,
 	0x00,//长度,后面再填入
 	0x1A,0x2A,0x3A,0x4A,0x5A,0x6A,//MAC地址，反过来的
-	0x02,0x09,'Y' //完整名字	
+	0x05,0x09,'T','E','M','P', //完整名字
+	0x07,0xFF,0xFF,0xFF,0x00,0x00,0x01,0x02 //18-21	
 };
 
 __HIGH_CODE
@@ -142,6 +143,7 @@ measure:
 	memcpy(TxBuf,advert_data,sizeof(advert_data));
 	TxBuf[1] = (uint8_t) (sizeof(advert_data)-2);
 
+
 	SHT40_beginMeasure();
 	DelayMs(3);
 	SHT40_getDat(rawData);
@@ -157,7 +159,10 @@ measure:
 	temperature = temperature - 4500;
 	humid = humid-600;
 
-	TxBuf[sizeof(advert_data)-1] = 'T';
+	TxBuf[18] = ( (humid/1000) << 4) | ( (humid%1000) / 100 );
+	TxBuf[19] = ( ((humid%100)/10) << 4 ) | humid%10;
+	TxBuf[20] =  ( (temperature/1000) << 4 ) | ((temperature%1000) / 100);
+	TxBuf[21] = ( ((temperature%100)/10) << 4 ) | temperature %10;
 
 	imageCache = malloc(5000);
 	uint8_t textcolor = BLACK;
@@ -229,7 +234,7 @@ measure:
 		RFIP_WakeUpRegInit();
 	}
 
-	RTC_TRIGFunCfg(32*60000);
+	RTC_TRIGFunCfg(32768*60);
 	MySleep(0);	
 	RFIP_WakeUpRegInit();
 

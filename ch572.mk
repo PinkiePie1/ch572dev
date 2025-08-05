@@ -147,15 +147,15 @@ vpath %.c $(sort $(dir $(C_SOURCES)))
 
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
 	$(info Compiling c source: $<)
-	$(CC) -c $(CFLAGS) -o "$@" "$<"
+	@$(CC) -c $(CFLAGS) -o "$@" "$<"
 
 $(BUILD_DIR)/%.o: %.S Makefile | $(BUILD_DIR)
 	$(info Compiling assembler source: $<)
-	$(AS) -c $(ASFLAGS) -o "$@" "$<"
+	@$(AS) -c $(ASFLAGS) -o "$@" "$<"
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
 	$(info Linking: $@)
-	$(CC) -o $@ $(OBJECTS) $(LDFLAGS) $(LIBDIR) $(LIBS) -T"$(LDSCRIPT)"
+	@$(CC) -o $@ $(OBJECTS) $(LDFLAGS) $(LIBDIR) $(LIBS) -T"$(LDSCRIPT)"
 	@$(OD) --all-headers --demangle --disassemble -M xw $(BUILD_DIR)/$(TARGET).elf > $(BUILD_DIR)/$(TARGET).lst 
 	@$(SZ) $@
 
