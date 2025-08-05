@@ -24,7 +24,7 @@ C_INCLUDES +=	\
 C_INCLUDES += -I"./"
 
 #startup部分
-ASM_SOURCES += $(SELF_DIR)CH572libs/Startup/startup_CH572.S
+ASM_SOURCES += $(SELF_DIR)CH572Libs/Startup/startup_CH572.S
 
 # AS includes
 AS_INCLUDES += -I"$(SELF_DIR)CH572Libs/Startup" 
@@ -104,7 +104,7 @@ $(OPT)\
 #\
 #-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)"
 
-LIBDIR += -L"$(SELF_DIR)CH572libs/StdPeriphDriver" -L"../"
+LIBDIR += -L"$(SELF_DIR)CH572Libs/StdPeriphDriver" -L"../"
 
 LIBS += -lm -lISP572
 

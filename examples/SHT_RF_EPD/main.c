@@ -52,7 +52,7 @@ void MySleep(uint8_t use5v)
     sys_safe_access_disable();
 
 	PFIC->SCTLR |= (1 << 2); //deep sleep
-    ldoconfig |= RB_PWR_PLAN_EN | RB_PWR_CORE | RB_PWR_RAM12K |(1<<12) ;
+    ldoconfig |= RB_PWR_PLAN_EN | RB_PWR_CORE | RB_PWR_RAM12K | RB_PWR_EXTEND | RB_XT_PRE_EN |(1<<12) ;
     sys_safe_access_enable();
  	R8_SLP_POWER_CTRL |= 0x40; //longest wake up delay
   	R16_POWER_PLAN = ldoconfig;

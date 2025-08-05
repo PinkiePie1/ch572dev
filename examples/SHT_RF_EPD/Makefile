@@ -1,4 +1,4 @@
-TARGET := RF_Basic
+TARGET := SHT_RF_EPD
 C_DEFS := \
 
 #-D DEBUG=0
