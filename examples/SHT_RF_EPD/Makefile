@@ -5,8 +5,8 @@ C_DEFS := \
 
 LIBS := -lCH57xRF
 
-LIBDIR += -L"$(SELF_DIR)CH572Libs/BLELIB"
+LIBDIR += -L"$(SELF_DIR)CH572libs/BLELIB"
 
-C_INCLUDES := -I"../../CH572Libs/BLELIB" 
+C_INCLUDES := -I"../../CH572libs/BLELIB" 
 
 include ../../ch572.mk

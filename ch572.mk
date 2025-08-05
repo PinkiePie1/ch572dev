@@ -10,13 +10,13 @@ $(wildcard ./*.c)
 
 #标准库
 C_SOURCES += \
-$(wildcard $(SELF_DIR)CH572Libs/StdPeriphDriver/*.c) 
+$(wildcard $(SELF_DIR)CH572libs/StdPeriphDriver/*.c) 
 
 #标准库
 C_INCLUDES +=	\
--I"$(SELF_DIR)CH572Libs/StdPeriphDriver/inc" \
--I"$(SELF_DIR)CH572Libs/Startup" \
--I"$(SELF_DIR)CH572Libs/RVMSIS"
+-I"$(SELF_DIR)CH572libs/StdPeriphDriver/inc" \
+-I"$(SELF_DIR)CH572libs/Startup" \
+-I"$(SELF_DIR)CH572libs/RVMSIS"
 
 #项目根目录
 
@@ -24,10 +24,10 @@ C_INCLUDES +=	\
 C_INCLUDES += -I"./"
 
 #startup部分
-ASM_SOURCES += $(SELF_DIR)CH572Libs/Startup/startup_CH572.S
+ASM_SOURCES += $(SELF_DIR)CH572libs/Startup/startup_CH572.S
 
 # AS includes
-AS_INCLUDES += -I"$(SELF_DIR)CH572Libs/Startup" 
+AS_INCLUDES += -I"$(SELF_DIR)CH572libs/Startup" 
 AS_INCLUDES += $(C_INCLUDES)
 
 # optimization
@@ -46,7 +46,7 @@ AS_DEFS = $(C_DEFS)
 # Linker
 #######################################
 # link script
-LDSCRIPT ?= $(SELF_DIR)CH572Libs/Ld/Link.ld
+LDSCRIPT ?= $(SELF_DIR)CH572libs/Ld/Link.ld
 
 $(info using LD script: $(LDSCRIPT))
 
@@ -104,7 +104,7 @@ $(OPT)\
 #\
 #-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)"
 
-LIBDIR += -L"$(SELF_DIR)CH572Libs/StdPeriphDriver" -L"../"
+LIBDIR += -L"$(SELF_DIR)CH572libs/StdPeriphDriver" -L"../"
 
 LIBS += -lm -lISP572
 
