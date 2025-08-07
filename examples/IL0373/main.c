@@ -16,15 +16,14 @@ static inline void mymemset(void *dest, int c, size_t n) { unsigned char *s = de
 
 static void GPIOInit(void)
 {
+	GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
 	EPD_Hal_Init();
-	GPIOA_ModeCfg(GPIO_Pin_3,GPIO_ModeOut_PP_5mA);
-	GPIOA_SetBits(GPIO_Pin_3);
 }
 
 void main(void)
 {
     HSECFG_Capacitance(HSECap_18p);
-    SetSysClock(CLK_SOURCE_HSE_PLL_100MHz);
+    SetSysClock(CLK_SOURCE_HSE_PLL_100MHz);    
 	GPIOInit();
 
 
@@ -35,9 +34,28 @@ void main(void)
 
 	EPD_Init();	
 	EPD_SendDisplay(imageCache);
+    GPIOA_ITModeCfg(EPD_BUSY_PIN, GPIO_ITMode_RiseEdge); 
+    PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_GPIO_WAKE, Fsys_Delay_4096);
+    PFIC_EnableIRQ( GPIO_A_IRQn) ;
+    LowPower_Sleep(RB_PWR_RAM12K);
 	EPD_Sleep();
-while(1);
+	LowPower_Sleep(RB_PWR_RAM12K);
+	EPD_DeepSleep();
+	PFIC_DisableIRQ( GPIO_A_IRQn);
+	PWR_PeriphWakeUpCfg(DISABLE, RB_SLP_GPIO_WAKE, Fsys_Delay_4096);
+	LowPower_Sleep(RB_PWR_RAM12K);
+	while(1);
+
 
 	
 	
+}
+
+
+__INTERRUPT
+__HIGH_CODE
+void GPIOA_IRQHandler(void)
+{
+    GPIOA_ClearITFlagBit(0xFFFF);
+    
 }

@@ -42,4 +42,5 @@ void EPD_Clear(void);
 void EPD_Sleep(void);
 void EPD_SendDisplay(uint8_t *image);
 void EPD_PartialDisplay(uint8_t *image);
+void EPD_DeepSleep(void);
 #endif

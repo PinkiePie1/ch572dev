@@ -119,7 +119,7 @@ static void EPD_HardReset(void)
 	//RES_HIGH; //既然已经拉高了，那就没有必要再拉低一次。
 	//devDelay(10);
 	RES_LOW;
-	devDelay(100);
+	devDelay(3);
 	RES_HIGH;
 	//devDelay(10);
 }
@@ -155,7 +155,6 @@ void EPD_Init(void)
 {
 	//硬重置
 	EPD_HardReset();
-	devDelay( 100 );
 	WAIT_BUSY;
 
 	EPD_Cmd( 0x06 );
@@ -166,15 +165,22 @@ void EPD_Init(void)
 	EPD_Cmd( 0x00 ); //panel setting
 	EPD_Dat( 0x3F ); //1F用OTP，3F用内存LUT
 
+	EPD_Cmd( 0x01 );
+	EPD_Dat( 0x03 );
+	EPD_Dat( 0x00 );
+	EPD_Dat( 0x2B );
+	EPD_Dat( 0x2B );
+	EPD_Dat( 0x09 );
+
 	EPD_Cmd(0x20);
 	EPD_DATAPGM(lut_20_vcomDC, sizeof(lut_20_vcomDC));
-	EPD_Cmd(0x23);
-	EPD_DATAPGM(lut_21_ww, sizeof(lut_21_ww));
-	EPD_Cmd(0x24);
-	EPD_DATAPGM(lut_22_bw, sizeof(lut_22_bw));
 	EPD_Cmd(0x21);
-	EPD_DATAPGM(lut_23_wb, sizeof(lut_23_wb));
+	EPD_DATAPGM(lut_21_ww, sizeof(lut_21_ww));
 	EPD_Cmd(0x22);
+	EPD_DATAPGM(lut_22_bw, sizeof(lut_22_bw));
+	EPD_Cmd(0x23);
+	EPD_DATAPGM(lut_23_wb, sizeof(lut_23_wb));
+	EPD_Cmd(0x24);
 	EPD_DATAPGM(lut_24_bb, sizeof(lut_24_bb));
 
 	EPD_Cmd( 0x04 );//start boot
@@ -186,7 +192,7 @@ void EPD_Init(void)
 	EPD_Dat( EPD_HEIGHT & 0xFF );
 
 	EPD_Cmd(0X50);			//VCOM AND DATA INTERVAL SETTING 边框颜色			
-	EPD_Dat(0x57);		//WBmode:VBDF 17|D7 VBDW 97 VBDB 57		WBRmode:VBDF F7 VBDW 77 VBDB 37  VBDR B7
+	EPD_Dat(0x47);		//反色所以用47而不是57，07的话是浮空。
 
 }
 
@@ -194,8 +200,6 @@ void EPD_Init(void)
 void EPD_Update(void)
 {
     EPD_Cmd( 0x12 );
-    devDelay( 100 );
-    WAIT_BUSY;	
     
 }
 
@@ -204,7 +208,7 @@ void EPD_Update(void)
 void EPD_PartialUpdate(void)
 {
     EPD_Cmd( 0x12 );
-    WAIT_BUSY;	
+    	
     
 }
 
@@ -304,10 +308,19 @@ void EPD_PartialDisplay(uint8_t *image)
 void EPD_Sleep(void)
 {
     EPD_Cmd(0x50);
-    EPD_Dat(0xF7);
+    EPD_Dat(0x17);
+
+    EPD_Cmd(0x82);
+    EPD_Dat(0x00);
 
     EPD_Cmd(0x02);
-    WAIT_BUSY;
-    EPD_Cmd(0x07);
-    EPD_Dat(0xA5);
+   // WAIT_BUSY;
+   // EPD_Cmd(0x07);
+   // EPD_Dat(0xA5);
+}
+
+void EPD_DeepSleep(void)
+{
+	EPD_Cmd(0x07);
+	EPD_Dat(0xA5);
 }
