@@ -14,7 +14,7 @@
 #include <CH572rf.h>
 #include <stdlib.h>
 
-#define POWER_PIN 1 //如果用5V，这里改成1
+#define POWER_PIN 0 //如果用5V，这里改成1
 
 uint32_t humid;
 uint32_t temperature;
