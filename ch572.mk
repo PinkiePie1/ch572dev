@@ -63,7 +63,7 @@ AR = $(PREFIX)ar
 SZ = $(PREFIX)size --format=berkeley
 OD = $(PREFIX)objdump
 HEX = $(CP) -O ihex
-BIN = $(CP) -O binary -S
+BIN = $(CP) -O binary
 
 
 ##flags##
