@@ -172,6 +172,15 @@ $(BUILD_DIR):
 
 build: $(BUILD_DIR)/$(TARGET).bin
 
+flash: $(BUILD_DIR)/$(TARGET).bin
+	@echo "Flashing the device..."
+	@echo "unbricking.."
+	@$(SELF_DIR)minichlink -u
+	@echo "Uploading firmware..."
+	@sleep 0.2
+	@$(SELF_DIR)minichlink -w $(BUILD_DIR)/$(TARGET).bin flash -b
+	@echo "Flash complete."
+
 #######################################
 # Clean up
 #######################################

@@ -8,22 +8,61 @@
 #include "CH57x_common.h"
 #include "main.h"
 #include <CH572rf.h>
-//#include <CH572BLEPeri_LIB.h>
 #include <stdlib.h>
 
-#define LED GPIO_Pin_9
+#define POWER_PIN 0 //如果用5V，这里改成1
+
+rfRoleConfig_t conf ={0};
+
+//sleep.
+
+
+
+void MySleep(uint8_t use5v);
 
 rfipTx_t gTxParam;
 uint8_t tx_flag = 0;
-rfRoleConfig_t conf ={0};
 __attribute__((__aligned__(4))) uint8_t TxBuf[64];
 
 const uint8_t advert_data[]={
 	0x02,
 	0x00,//长度,后面再填入
 	0x1A,0x2A,0x3A,0x4A,0x5A,0x6A,//MAC地址，反过来的
-	0x02,0x09,'X' //完整名字	
+	0x05,0x09,'T','E','M','P', //完整名字
+	0x07,0xFF,0xFF,0xFF,0x00,0x00,0x01,0x02 //18-21	
 };
+
+__HIGH_CODE
+void MySleep(uint8_t use5v)
+{
+    uint16_t ldoconfig = 0;
+	if(use5v)
+    {
+        ldoconfig |= RB_PWR_LDO5V_EN;
+    }
+    sys_safe_access_enable();
+	R8_CLK_SYS_CFG = CLK_SOURCE_HSE_PLL_60MHz;
+    sys_safe_access_disable();
+
+	PFIC->SCTLR |= (1 << 2); //deep sleep
+    ldoconfig |= RB_PWR_PLAN_EN | RB_PWR_CORE | RB_PWR_RAM12K | RB_PWR_EXTEND | RB_XT_PRE_EN |(1<<12) ;
+    sys_safe_access_enable();
+ 	R8_SLP_POWER_CTRL |= 0x40; //longest wake up delay
+  	R16_POWER_PLAN = ldoconfig;
+    sys_safe_access_disable();
+	
+	asm volatile ("wfi\nnop\nnop" );
+	uint16_t i = 400;
+    do {
+    __nop();
+    }while (i--);
+    sys_safe_access_enable();
+    R16_POWER_PLAN &= ~RB_PWR_PLAN_EN;
+    R16_POWER_PLAN &= ~RB_XT_PRE_EN;
+    R8_CLK_SYS_CFG = CLK_SOURCE_HSE_PLL_100MHz;
+    sys_safe_access_disable();
+
+}
 
 __HIGH_CODE
 void RF_ProcessCallBack( rfRole_States_t sta,uint8_t id  )
@@ -39,13 +78,13 @@ void RF_ProcessCallBack( rfRole_States_t sta,uint8_t id  )
     }
 }
 
-__HIGH_CODE
 void main(void)
 {
-	SetSysClock(CLK_SOURCE_HSE_PLL_100MHz);
+    sys_safe_access_enable();
+    R8_CLK_SYS_CFG = CLK_SOURCE_HSE_PLL_100MHz;
+    sys_safe_access_disable();
+    
 	GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
-	GPIOA_SetBits(LED);
-	GPIOA_ModeCfg(LED,GPIO_ModeOut_PP_5mA);
 
     sys_safe_access_enable( );
     R32_MISC_CTRL = (R32_MISC_CTRL&(~(0x3f<<24)))|(0xe<<24);
@@ -84,12 +123,12 @@ void main(void)
     PFIC_EnableIRQ( RTC_IRQn );
     PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_RTC_WAKE, Fsys_Delay_4096);//开启RTC唤醒使能
 
-	// 初始化发送的数据
 	memcpy(TxBuf,advert_data,sizeof(advert_data));
 	TxBuf[1] = (uint8_t) (sizeof(advert_data)-2);
 
-	while(1){
-		GPIOA_ResetBits(LED);
+
+	while(1)
+	{
 		gTxParam.whiteChannel=0x37; 
 		gTxParam.frequency = 37;
 		tx_flag = 1;
@@ -105,16 +144,22 @@ void main(void)
 		tx_flag = 1;
 		RFIP_StartTx( &gTxParam );
 		do{__nop();}while(tx_flag == 1); // 等待发送完成
-		GPIOA_SetBits(LED);
 		RTC_TRIGFunCfg(32*200);
-		LowPower_Sleep(RB_PWR_RAM12K | RB_PWR_EXTEND | RB_XT_PRE_EN );
-		HSECFG_Current(HSE_RCur_100);	
+		MySleep(POWER_PIN);	
 		RFIP_WakeUpRegInit();
-	};
+	}
+
+	while(1);
 
 }
 
-
+__INTERRUPT
+__HIGH_CODE
+void GPIOA_IRQHandler(void)
+{
+    GPIOA_ClearITFlagBit(0xFFFF);
+    
+}
 
 __INTERRUPT
 __HIGH_CODE
@@ -124,7 +169,7 @@ void RTC_IRQHandler(void)
 	
 }
 
-
+//这个不能漏掉
 __INTERRUPT
 __HIGH_CODE
 void LLE_IRQHandler( void )
