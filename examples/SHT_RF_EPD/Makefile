@@ -5,6 +5,8 @@ C_DEFS := \
 
 LIBS := -lCH57xRF
 
+NEEDS_UNBRICK = defined
+
 LIBDIR += -L"$(SELF_DIR)CH572libs/BLELIB"
 
 C_INCLUDES := -I"../../CH572libs/BLELIB" 
