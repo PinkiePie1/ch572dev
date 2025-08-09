@@ -12,15 +12,8 @@ toolchain("wch-riscv-gcc")
     set_toolset("objcopy", "riscv-wch-elf-objcopy")
     set_toolset("size", "riscv-wch-elf-size")
     set_toolset("objdump", "riscv-wch-elf-objdump")
+    
 toolchain_end()
-
-
-option("ldfile")
-	set_default("CH572Libs/Ld/Link.ld")
-	set_showmenu(true)
-option_end()
-
-
 
 target("ch572")
 	set_kind("object")
@@ -113,10 +106,14 @@ rule("generateAll")
 			target:targetfile()
 		})
 
+		if has_config("unbrick") then
+			os.execv("echo",{"unbricking..."})
+			os.execv("./minichlink",{"-u"})
+		end
+
 		if has_config("flash") then
-			os.execv("echo", {"if i flash then I run minichlink -E -w", path.join("objs", target:name() .. ".bin" .. " flash -b")})
-			os.execv("./minichlink",{"-E","-w", path.join("objs", target:name() .. ".bin") , "flash", "-b"})
-    		progress.show(opt.progress, "${color.build.object}flashing %s", target:name())
+			progress.show(opt.progress, "${color.build.object}flashing %s", target:name())
+			os.execv("./minichlink",{"-w", path.join("objs", target:name() .. ".bin") , "flash", "-b"})
 		end
     end)
 
@@ -125,9 +122,10 @@ option("flash")
 	set_showmenu(true)
 	set_description("flash to mcu")
 
-option("debug")
+option("unbrick")
 	set_default(false)
 	set_showmenu(true)
-	set_description("debug at uart port.")
+	set_description("unbrick before flashing to mcu.")
+
 
 option_end()

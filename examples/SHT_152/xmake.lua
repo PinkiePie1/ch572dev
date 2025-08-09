@@ -1,4 +1,4 @@
-target("RF_Basic")
+target("SHT_152")
     set_kind("binary")
     set_toolchains("wch-riscv-gcc")
     add_deps("ch572")
