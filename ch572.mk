@@ -125,6 +125,7 @@ $(OPT)\
 -Xlinker --gc-sections\
 -Xlinker --print-memory-usage\
 -Wl,-Map=$(BUILD_DIR)/$(TARGET).map\
+-Wl,--wrap=memcpy\
 --specs=nano.specs\
 --specs=nosys.specs
 

@@ -12,22 +12,18 @@
 #include "SHT40.h"
 #include "EPD_1IN54_SSD1680.h"
 #include <CH572rf.h>
-#include <stdlib.h>
+//#include <stdlib.h>
 
 #define POWER_PIN 0 //如果用5V，这里改成1
 
 uint32_t humid;
 uint32_t temperature;
-uint8_t *imageCache;
+__attribute__((__aligned__(4))) uint8_t imageCache[2888]={0};
 uint8_t refreshCount = 250;
 uint8_t img_index = 0;
 uint8_t rawData[9];
 uint8_t MacAddr[6]={0x1A,0x2A,0x3A,0x4A,0x5A,0x6A};
 rfRoleConfig_t conf ={0};
-
-//sleep.
-
-
 
 void MySleep(uint8_t use5v);
 
@@ -39,7 +35,7 @@ const uint8_t advert_data[]={
 	0x02,
 	0x00,//长度,后面再填入
 	0x1A,0x2A,0x3A,0x4A,0x5A,0x6A,//MAC地址，反过来的
-	0x05,0x09,'T','E','M','P', //完整名字
+	0x05,0x09,'t','e','m','p', //完整名字
 	0x07,0xFF,0xFF,0xFF,0x00,0x00,0x01,0x02 //18-21	
 };
 
@@ -105,7 +101,7 @@ void main(void)
 	SoftI2CInit();
 
 	//读取芯片MAC地址
-	//有需求可以启用这一行，不过会多800k字节的内存需求。
+	//有需求可以启用这一行，不过会多800字节的内存需求。
 	//FLASH_EEPROM_CMD( CMD_GET_ROM_INFO, ROM_CFG_MAC_ADDR, MacAddr, 0 );
 
     sys_safe_access_enable( );
@@ -151,7 +147,6 @@ measure:
 	memcpy(TxBuf+2,MacAddr,6);
 	TxBuf[1] = (uint8_t) (sizeof(advert_data)-2);
 
-
 	SHT40_beginMeasure();
 	DelayMs(3);
 	SHT40_getDat(rawData);
@@ -169,31 +164,46 @@ measure:
 
 	TxBuf[18] = ( (humid/1000) << 4) | ( (humid%1000) / 100 );
 	TxBuf[19] = ( ((humid%100)/10) << 4 ) | humid%10;
-	TxBuf[20] =  ( (temperature/1000) << 4 ) | ((temperature%1000) / 100);
+	TxBuf[20] = ( (temperature/1000) << 4 ) | ((temperature%1000) / 100);
 	TxBuf[21] = ( ((temperature%100)/10) << 4 ) | temperature %10;
 
-	imageCache = malloc(2888);
 	uint8_t textcolor = BLACK;
 	img_index = (0x0001&temperature);
 	if(imageCache != NULL)
 	{
 
-		memset(imageCache,0x00,2888);
-		textcolor = BLACK;
-
+		//memset(imageCache,0x00,2888);
+		switch (img_index)
+		{
+		case 0:
+			memcpy(imageCache,gImage_mi1,2888);
+			textcolor = BLACK;
+			break;
+		case 1:
+			memcpy(imageCache,gImage_mi2,2888);
+			textcolor = BLACK;
+		default:
+			break;
+		}
 
 		paint_SetImageCache(imageCache);
 
 		EPD_Printf(0,0,font16,textcolor,"T:%02d.%02d",temperature/100,temperature%100);
-		EPD_Printf(0,20,font16,textcolor,"H:%02d.%02d%%",humid/100,humid%100);
+		EPD_Printf(0,16,font16,textcolor,"H:%02d.%02d%%",humid/100,humid%100);
 
-        EPD_Init();	
-		EPD_SendDisplay(imageCache);			
+		if( refreshCount >= 5 )
+		{
+        	EPD_Init();	
+			EPD_SendDisplay(imageCache);			
+			refreshCount = 0;
+		}
+		else
+		{
+			EPD_PartialDisplay(imageCache);
+			refreshCount++;
+		}
 		
 	}
-
-	free(imageCache);
-
 
 	PFIC_EnableIRQ( GPIO_A_IRQn) ;
 	MySleep(POWER_PIN);
@@ -201,23 +211,27 @@ measure:
 	RFIP_WakeUpRegInit();
 	PFIC_DisableIRQ( GPIO_A_IRQn) ;
 
-	for(uint16_t i = 0;i<3;i++)
+	for( uint8_t i = 0 ; i < 4 ; i++ )
 	{
+		
 		gTxParam.whiteChannel=0x37; 
 		gTxParam.frequency = 37;
 		tx_flag = 1;
 		RFIP_StartTx( &gTxParam );
 		do{__nop();}while(tx_flag == 1); // 等待发送完成
+		
 		gTxParam.whiteChannel=0x38; 
 		gTxParam.frequency = 38;
 		tx_flag = 1;
 		RFIP_StartTx( &gTxParam );
-		do{__nop();}while(tx_flag == 1); // 等待发送完成
+		do{__nop();}while(tx_flag == 1); 
+		
 		gTxParam.whiteChannel=0x39; 
 		gTxParam.frequency = 39;
 		tx_flag = 1;
 		RFIP_StartTx( &gTxParam );
-		do{__nop();}while(tx_flag == 1); // 等待发送完成
+		do{__nop();}while(tx_flag == 1); 
+		
 		RTC_TRIGFunCfg(32*200);
 		MySleep(POWER_PIN);	
 		RFIP_WakeUpRegInit();
@@ -255,7 +269,6 @@ void LLE_IRQHandler( void )
 {
     LLE_LibIRQHandler( );
 }
-
 
 __INTERRUPT
 __HIGH_CODE
