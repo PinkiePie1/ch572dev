@@ -8,25 +8,26 @@
 #include "CH57x_common.h"
 #include "main.h"
 
+#define LED_PIN GPIO_Pin_11
 
 static void GPIOInit(void)
 {
-	GPIOA_ModeCfg(GPIO_Pin_9,GPIO_ModeOut_PP_5mA);
+	GPIOA_ModeCfg(LED_PIN,GPIO_ModeOut_PP_5mA);
 }
 
 void main(void)
 {
         HSECFG_Capacitance(HSECap_18p);
         SetSysClock(CLK_SOURCE_HSE_PLL_100MHz);
-        GPIOA_ModeCfg(GPIO_Pin_9, GPIO_ModeOut_PP_5mA);
+        GPIOA_ModeCfg(LED_PIN, GPIO_ModeOut_PP_5mA);
 	GPIOInit();
 
 	while( 1 )
         {
-            GPIOA_SetBits(GPIO_Pin_9);
-            DelayMs(500);
-            GPIOA_ResetBits(GPIO_Pin_9);
-            DelayMs(500);
+            GPIOA_SetBits(LED_PIN);
+            DelayMs(100);
+            GPIOA_ResetBits(LED_PIN);
+            DelayMs(100);
         }
 
 }
