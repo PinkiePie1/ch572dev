@@ -15,3 +15,4 @@
 ====
 
 部分examples下有Makefile，也可直接在对应目录执行`make -j16 all`进行编译，`make -j16 flash`进行编译加下载
+在使用make编译之前需要设置`WCH_TOOLCHAIN_PATH`环境变量指向工具链，例如`export WCH_TOOLCHIAN_PATH=~/wchtoolchain/bin/`
