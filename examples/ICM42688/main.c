@@ -39,14 +39,14 @@ void main(void)
         HSECFG_Capacitance(HSECap_18p);
         SetSysClock(CLK_SOURCE_HSE_PLL_100MHz);
         GPIOA_ModeCfg(GPIO_Pin_9, GPIO_ModeOut_PP_5mA);
-        
+
         DebugInit();
         DelayMs(200);
         PRINT("hi!");
-        
+
 	    DelayMs(500);
 	    char buffer[40] = "init success.";
-	    
+
         //GPIOA_SetBits(GPIO_Pin_9);
         if(ICM_Init() == 0)
         {
@@ -60,14 +60,12 @@ void main(void)
         DelayMs(20);
         while(1)
         {
-        	DelayMs(1000);
+        	DelayMs(2000);
         	ICM_ReadAll(buffer);
         	UART_SendString(buffer, 14);
-			GPIOA_ResetBits(GPIO_Pin_9);
-			DelayMs(20);
+		GPIOA_ResetBits(GPIO_Pin_9);
+		DelayMs(20);
         	GPIOA_SetBits(GPIO_Pin_9);
         }
-
-        
-        
+ 
 }
