@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 #define POWER_PIN 0 //如果用5V，这里改成1
-#define LED_PIN GPIO_Pin_11 //闪灯方便观察
+#define LED_PIN GPIO_Pin_9 //闪灯方便观察
 
 rfRoleConfig_t conf ={0};
 
@@ -29,7 +29,7 @@ const uint8_t advert_data[]={
 	0x02,
 	0x00,//长度,后面再填入
 	0x1A,0x2A,0x3A,0x4A,0x5A,0x6A,//MAC地址，反过来的
-	0x06,0x09,'c','h','5','7','0', //完整名字
+	0x06,0x09,'c','h','5','7','2', //完整名字
 	0x07,0xFF,0xFF,0xFF,0x00,0x00,0x01,0x02 //18-21	
 };
 
@@ -133,9 +133,9 @@ void main(void)
 	while(1)
 	{
 #if 1
-		GPIOA_SetBits(LED_PIN);
-		DelayMs(3);
 		GPIOA_ResetBits(LED_PIN);
+		DelayMs(3);
+		GPIOA_SetBits(LED_PIN);
 #endif
 		gTxParam.whiteChannel=0x37; 
 		gTxParam.frequency = 37;

@@ -1,4 +1,4 @@
-target("AHT20BLEEPD")
+target("BLE_EPD_AHT")
 	set_kind("binary")
     set_toolchains("wch-riscv-gcc")
 --    add_deps("ch572ble")
