@@ -54,7 +54,7 @@ $(info using LD script: $(LDSCRIPT))
 #######################################
 # Binaries
 #######################################
-PATH_TO_TOOLCHAIN = /mnt/c/MRStoolChain/'RISC-V Embedded GCC12'/bin/
+PATH_TO_TOOLCHAIN = $(WCH_TOOLCHAIN_PATH)
 PREFIX = $(PATH_TO_TOOLCHAIN)riscv-wch-elf-
 CC = $(PREFIX)gcc
 AS = $(PREFIX)gcc
