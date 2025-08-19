@@ -8,7 +8,7 @@
 使用下载器之前给minichlink执行权限：`chmod +x minichlink`
 通过`xmake f --menu`的project configuration中的对应选项可以选择编译后是否下载，以及下载前是否进行unbrick（用于需要睡眠的程序）
 
-查看有哪些可编译项目: `xmake -h`
+查看有哪些可编译项目: `xmake -h`,注意目前部分项目名和文件夹名不同
 
 编译：`xmake -b blink`
 
