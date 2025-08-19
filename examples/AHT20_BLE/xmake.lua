@@ -1,4 +1,4 @@
-target("AHTBLE")
+target("AHT20_BLE")
 	set_kind("binary")
     set_toolchains("wch-riscv-gcc")
 --    add_deps("ch572ble")
