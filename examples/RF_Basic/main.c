@@ -29,7 +29,7 @@ const uint8_t advert_data[]={
 	0x02,
 	0x00,//长度,后面再填入
 	0x1A,0x2A,0x3A,0x4A,0x5A,0x6A,//MAC地址，反过来的
-	0x06,0x09,'c','h','5','7','2', //完整名字
+	0x06,0x09,'C','H','5','7','2', //完整名字
 	0x07,0xFF,0xFF,0xFF,0x00,0x00,0x01,0x02 //18-21	
 };
 
@@ -152,7 +152,7 @@ void main(void)
 		tx_flag = 1;
 		RFIP_StartTx( &gTxParam );
 		do{__nop();}while(tx_flag == 1); // 等待发送完成
-		RTC_TRIGFunCfg(32*200);
+		RTC_TRIGFunCfg(32*500);
 		MySleep(POWER_PIN);	
 		RFIP_WakeUpRegInit();
 	}
