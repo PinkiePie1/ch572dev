@@ -117,8 +117,8 @@ void main(void)
 
 	if(imageCache != NULL)
 	{
-		memset(imageCache,0x00,4736);
-		//memcpy(imageCache,gImage_full,4736);
+		//memset(imageCache,0x00,4736);
+		memcpy(imageCache,gImage_full,4736);
 		paint_SetImageCache(imageCache);
 
 		EPD_Printf(50,50,font16,textcolor,"Yay.");
