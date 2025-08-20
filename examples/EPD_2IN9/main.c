@@ -11,8 +11,8 @@
 #include "imageData.h"
 #include "SHT40.h"
 #include "EPD_1IN54_SSD1680.h"
-#include <CH572rf.h>
 #include <stdlib.h>
+#include <CH572rf.h>
 
 #define POWER_PIN 0 //如果用5V，这里改成1
 
@@ -97,8 +97,8 @@ void main(void)
 	GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
 
 	EPD_Hal_Init();
-//	GPIOA_ITModeCfg(EPD_BUSY_PIN, GPIO_ITMode_FallEdge); 
-//	PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_GPIO_WAKE, Fsys_Delay_4096);
+	GPIOA_ITModeCfg(EPD_BUSY_PIN, GPIO_ITMode_FallEdge); 
+	PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_GPIO_WAKE, Fsys_Delay_4096);
 
 	//initialize RTC to 0.
 	sys_safe_access_enable();
@@ -118,6 +118,7 @@ void main(void)
 	if(imageCache != NULL)
 	{
 		memset(imageCache,0x00,4736);
+		//memcpy(imageCache,gImage_full,4736);
 		paint_SetImageCache(imageCache);
 
 		EPD_Printf(50,50,font16,textcolor,"Yay.");
@@ -125,24 +126,23 @@ void main(void)
 		EPD_SendDisplay(imageCache);
 	}
 
-	free(imageCache);
-
-	DelayMs(2000);
-	//PFIC_EnableIRQ( GPIO_A_IRQn) ;
-	//MySleep(POWER_PIN);
+	PFIC_EnableIRQ( GPIO_A_IRQn) ;
+	MySleep(POWER_PIN);
 	EPD_Sleep();
 	//RFIP_WakeUpRegInit();
 	//PFIC_DisableIRQ( GPIO_A_IRQn) ;
+	RTC_TRIGFunCfg(32768*5);
+	MySleep(POWER_PIN);
 
-	DelayMs(5000);
+	EPD_Printf(50,70,font16,textcolor,"partial.");
+	EPD_PartialDisplay(imageCache);
+	EPD_Sleep();
+
+	free(imageCache);	
 	while(1);
 
 	RTC_TRIGFunCfg(32768*300);
 	MySleep(POWER_PIN);
-	RFIP_WakeUpRegInit();
-
-
-
 }
 
 __INTERRUPT

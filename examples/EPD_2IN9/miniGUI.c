@@ -177,8 +177,8 @@ void fastRect(uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, ui
 //在屏幕上的起点和终点。
 void FastImg(uint16_t yStart, uint16_t yEnd, const char *imgDat)
 {
-	uint32_t length = (yEnd-yStart)*128;
-	memcpy( (void *)( (uint32_t)image+ (yStart*128)), 
+	uint32_t length = (yEnd-yStart) << 4;
+	memcpy( (void *)( (uint32_t)image+ (yStart << 4)), 
 	imgDat, 
 	length);
 }

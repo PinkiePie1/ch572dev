@@ -206,7 +206,7 @@ void EPD_Update(void)
     EPD_Cmd( 0x22 );
     EPD_Dat( 0xC7 );
     EPD_Cmd( 0x20 );
-    WAIT_BUSY;	
+   // WAIT_BUSY;	
     
 }
 
@@ -217,7 +217,7 @@ void EPD_PartialUpdate(void)
     EPD_Cmd( 0x22 );
     EPD_Dat( 0xCF );
     EPD_Cmd( 0x20 );
-    WAIT_BUSY;	
+    //WAIT_BUSY;	
     
 }
 
@@ -317,7 +317,7 @@ void EPD_PartialDisplay(uint8_t *image)
 	WAIT_BUSY;
 */	
 //	EPD_SetWindows(0, 0, EPD_WIDTH-1, EPD_HEIGHT-1);
-	EPD_SetCursor(EPD_WIDTH-1, EPD_HEIGHT-1);
+	EPD_SetCursor(127, 295);
 
 //传送显示数据，不需要传送0x26
 	EPD_Cmd(0x24);
