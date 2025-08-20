@@ -117,7 +117,9 @@ void main(void)
 
 	if(imageCache != NULL)
 	{
-		//memset(imageCache,0x00,4736);
+		memset(imageCache,0x00,4736);
+		//imageCache[0] = 0x01;
+		//imageCache[1] = 0x0F;
 		memcpy(imageCache,gImage_full,4736);
 		paint_SetImageCache(imageCache);
 
@@ -136,13 +138,38 @@ void main(void)
 
 	EPD_Printf(50,70,font16,textcolor,"partial.");
 	EPD_PartialDisplay(imageCache);
+	MySleep(POWER_PIN);
 	EPD_Sleep();
 
-	free(imageCache);	
-	while(1);
+	uint16_t counter = 0;
+	
+	while(1)
+	{
+		EPD_Printf(35,90,font16,textcolor,"count:%d",counter);
+		if (refreshCount > 8)
+		{
+			EPD_Init();
+			EPD_SendDisplay(imageCache);
+			refreshCount = 0;
+		}
+		else
+		{
+			refreshCount++;
+			EPD_SendDisplay(imageCache);
+		}
 
-	RTC_TRIGFunCfg(32768*300);
+		MySleep(POWER_PIN);
+		EPD_Sleep();
+
+		RTC_TRIGFunCfg(32768*30);
+		MySleep(POWER_PIN);
+		
+	}
+
+	free(imageCache);
+	//RTC_TRIGFunCfg(32768*300);
 	MySleep(POWER_PIN);
+	while(1);
 }
 
 __INTERRUPT
