@@ -145,6 +145,7 @@ void main(void)
 	
 	while(1)
 	{
+		counter++;
 		EPD_Printf(35,90,font16,textcolor,"count:%d",counter);
 		if (refreshCount > 8)
 		{
