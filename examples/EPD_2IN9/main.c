@@ -156,7 +156,7 @@ void main(void)
 		else
 		{
 			refreshCount++;
-			EPD_SendDisplay(imageCache);
+			EPD_PartialDisplay(imageCache);
 		}
 
 		MySleep(POWER_PIN);
@@ -164,7 +164,7 @@ void main(void)
 
 		RTC_TRIGFunCfg(32768*30);
 		MySleep(POWER_PIN);
-		
+
 	}
 
 	free(imageCache);
