@@ -1,4 +1,4 @@
-target("SHT200")
+target("SHT_200")
 	set_kind("binary")
     set_toolchains("wch-riscv-gcc")
 --    add_deps("ch572ble")

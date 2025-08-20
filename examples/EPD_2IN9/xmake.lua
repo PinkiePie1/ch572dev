@@ -1,4 +1,4 @@
-target("SHT_RF_EPD")
+target("EPD_2IN9")
     set_kind("binary")
     set_toolchains("wch-riscv-gcc")
     add_deps("ch572")
@@ -10,11 +10,6 @@ target("SHT_RF_EPD")
     -- 添加头文件搜索路径
     add_includedirs(
         "./"
-    )
-
-    add_ldflags(
-	"-lCH57xRF",	
-	{force = true}
     )
 
     check_ld()
