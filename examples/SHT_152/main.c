@@ -168,7 +168,7 @@ measure:
 	TxBuf[21] = ( ((temperature%100)/10) << 4 ) | temperature %10;
 
 	uint8_t textcolor = BLACK;
-	img_index = (0x0001&temperature);
+	img_index = (temperature%3);
 	if(imageCache != NULL)
 	{
 
@@ -182,6 +182,11 @@ measure:
 		case 1:
 			memcpy(imageCache,gImage_mi2,2888);
 			textcolor = BLACK;
+			break;
+		case 2:
+			memcpy(imageCache,gImage_cat,2888);
+			textcolor = BLACK;
+			break;
 		default:
 			break;
 		}
@@ -189,7 +194,7 @@ measure:
 		paint_SetImageCache(imageCache);
 
 		EPD_Printf(0,0,font16,textcolor,"T:%02d.%02d",temperature/100,temperature%100);
-		EPD_Printf(0,16,font16,textcolor,"H:%02d.%02d%%",humid/100,humid%100);
+		EPD_Printf(64,0,font16,textcolor,"H:%02d.%02d%%",humid/100,humid%100);
 
 		if( refreshCount >= 5 )
 		{
