@@ -109,6 +109,8 @@ void main(void)
    	R8_SLP_WAKE_CTRL |= RB_SLP_RTC_WAKE; // enable wakeup control
 	sys_safe_access_disable();
 
+    RTC_InitClock(Count_2047);
+	RTC_InitTime(2025,8,22,3,20,0);
 	PFIC_EnableIRQ( RTC_IRQn );
 	PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_RTC_WAKE, Fsys_Delay_4096);//开启RTC唤醒使能
 
@@ -122,7 +124,6 @@ void main(void)
 		//imageCache[1] = 0x0F;
 		memcpy(imageCache,gImage_full,4736);
 		paint_SetImageCache(imageCache);
-
 		EPD_Printf(50,50,font16,textcolor,"Yay.");
 		EPD_Init();
 		EPD_SendDisplay(imageCache);
@@ -142,11 +143,17 @@ void main(void)
 	EPD_Sleep();
 
 	uint16_t counter = 0;
-	
 	while(1)
 	{
 		counter++;
+		uint16_t ph;
+		uint16_t pm;
+		uint16_t ps;
+		
+		RTC_GetTime(NULL,NULL,NULL,&ph,&pm,&ps);
 		EPD_Printf(35,90,font16,textcolor,"count:%d",counter);
+		EPD_Printf(35,110,font16,textcolor,
+		"%02d:%02d:%02d",ph,pm,ps);
 		if (refreshCount > 8)
 		{
 			EPD_Init();
