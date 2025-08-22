@@ -6,11 +6,11 @@
 //EPD用到的各个引脚
 
 #define EPD_SCK_PIN GPIO_Pin_5 //PA5
-#define EPD_SDA_PIN GPIO_Pin_7 //PA7
-#define EPD_RES_PIN GPIO_Pin_6 //PA10
-#define EPD_DC_PIN GPIO_Pin_11  //PA6
-#define EPD_CS_PIN GPIO_Pin_10  //PA4
-#define EPD_BUSY_PIN GPIO_Pin_4 //PA11
+#define EPD_SDA_PIN GPIO_Pin_7 //PA7 因为用的硬件SPI，这两行不要改。
+#define EPD_RES_PIN GPIO_Pin_6 
+#define EPD_DC_PIN GPIO_Pin_11  
+#define EPD_CS_PIN GPIO_Pin_10  
+#define EPD_BUSY_PIN GPIO_Pin_4 
 
 //各个引脚的拉高拉低
 #define CS_HIGH GPIOA_SetBits(EPD_CS_PIN) 
@@ -41,4 +41,6 @@ void EPD_Clear(void);
 void EPD_Sleep(void);
 void EPD_SendDisplay(uint8_t *image);
 void EPD_PartialDisplay(uint8_t *image);
+void EPD_Cmd(uint8_t cmd);
+void EPD_Dat(uint8_t dat);
 #endif
