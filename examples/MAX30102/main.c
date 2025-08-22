@@ -112,7 +112,7 @@ void main(void)
 	uint8_t deviceid = I2C_Read(0);
 	I2CStop();
 
-	EPD_Printf(0, 16,font16, BLACK,"err:%d, deviceid:%02X", ack, deviceid);
+	EPD_Printf(0, 16,font16, BLACK,"ack:%d, deviceid:%02X", ack, deviceid);
 	if(deviceid == 0x15){
 		EPD_Printf(0, 32,font16, BLACK,"MAX30102 OK");
 	} else {
