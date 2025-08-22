@@ -171,12 +171,12 @@ void main(void)
 	WAIT_BUSY;
 	EPD_Sleep();
 
-	//
+	//Start IR heartbeat mode.
 
 	
 
-
-
+	dat[0] = 1 << 7;
+	MAX30102_WriteReg(0x09,dat,1);//shutdown.
 	while(1);
 
 }
