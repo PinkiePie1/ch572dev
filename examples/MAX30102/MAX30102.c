@@ -92,33 +92,31 @@ uint8_t I2C_Read(uint8_t ack)
 
 }
 
-
-void SHT40_beginMeasure(void)
+void MAX30102_ReadReg(uint8_t reg, uint8_t *buffer, uint16_t len)
 {
-	
 	I2CStart();
-    if( I2C_Write( (0x44<<1)|0 ) == ACK )//地址加写命令
-    {
-    	I2C_Write( 0xE0 ); //触发测量
-    } else {
-    	err = 1;
-    }
-    I2CStop();
-    return;
+	I2C_Write(0xAE); // read sequence 
+	I2C_Write(reg); // read address
+	I2CStart();
+	I2C_Write(0xAE | 0x01);
+	while( len > 1 )
+	{
+		*buffer = I2C_Read(1);
+		len--;
+		buffer++;
+	}
+	*buffer = I2C_Read(0);
+	I2CStop();
 }
 
-void SHT40_getDat(uint8_t *data)
+void MAX30102_WriteReg(uint8_t reg, uint8_t *buffer, uint16_t len)
 {
 	I2CStart();
-    I2C_Write(0x44<<1|1);//读取命令
-	data[0] = I2C_Read(1);
-	data[1] = I2C_Read(1);
-	data[2] = I2C_Read(1);
-	data[3] = I2C_Read(1);
-	data[4] = I2C_Read(1);
-	data[5] = I2C_Read(0);
-    I2CStop();
-    if(err){
-    	data[0] = 0xBB;
-    }
+	I2C_Write(0xAE); // read sequence 
+	I2C_Write(reg); // read address
+	for(uint16_t i = 0; i < len; i++)
+	{
+		I2C_Write(buffer[i]);
+	}
+	I2CStop();
 }

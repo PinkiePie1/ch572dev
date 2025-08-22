@@ -16,13 +16,13 @@
 #define SCL_HIGH R32_PA_SET |= SCL_PIN
 #define READ_SDA() (R32_PA_PIN & SDA_PIN)
 
-#define I2CDelayUs(x) //SHT40的I2C很快，不需要延迟也可以
+#define I2CDelayUs(x) DelayUs(3*x);
 
 void SoftI2CInit(void);
 void I2CStart(void);
 void I2CStop(void);
 uint8_t I2C_Write(uint8_t dat);
 uint8_t I2C_Read(uint8_t ack);
-void SHT40_beginMeasure(void);
-void SHT40_getDat(uint8_t *data);
+void MAX30102_ReadReg(uint8_t reg, uint8_t *buffer, uint16_t len);
+void MAX30102_WriteReg(uint8_t reg, uint8_t *buffer, uint16_t len);
 #endif

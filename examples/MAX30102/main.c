@@ -8,7 +8,6 @@
 #include "CH57x_common.h"
 #include "main.h"
 #include "miniGUI.h"
-#include "imageData.h"
 #include "MAX30102.h"
 #include "EPD_1IN54_SSD1680.h"
 #include <CH572rf.h>
@@ -19,6 +18,8 @@
 uint32_t humid;
 uint32_t temperature;
 __attribute__((__aligned__(4))) uint8_t imageCache[2888]={0};
+__attribute__((__aligned__(4))) uint8_t buf[128]={0};
+__attribute__((__aligned__(4))) uint16_t Meas_Data[128]={0};
 uint8_t refreshCount = 250;
 uint8_t img_index = 0;
 uint8_t rawData[9];
@@ -87,40 +88,94 @@ void RF_ProcessCallBack( rfRole_States_t sta,uint8_t id  )
 
 void main(void)
 {
+	uint8_t line = 0;
+
     sys_safe_access_enable();
     R8_CLK_SYS_CFG = CLK_SOURCE_HSE_PLL_100MHz;
     sys_safe_access_disable();
     
 	//GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
-
 	EPD_Hal_Init();
     //GPIOA_ITModeCfg(EPD_BUSY_PIN, GPIO_ITMode_FallEdge); 
     //PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_GPIO_WAKE, Fsys_Delay_4096);
+
 	EPD_Init();
 	paint_SetImageCache(imageCache);	
-	EPD_Printf(0, 0, font16, BLACK, "hi.");
+	EPD_Printf(0, line*16, font16, BLACK, "MAX30102 demo.");
+	line++;
 	EPD_SendDisplay(imageCache);
-	DelayMs(2000);
+	WAIT_BUSY;
 	EPD_Sleep();
 
 	SoftI2CInit();
-	I2CStart();
-	uint8_t ack = I2C_Write(0xAE);
-	I2C_Write(0xFF);
-	I2CStart();
-	I2C_Write(0xAE| 0x01);
-	uint8_t deviceid = I2C_Read(0);
-	I2CStop();
 
-	EPD_Printf(0, 16,font16, BLACK,"ack:%d, deviceid:%02X", ack, deviceid);
-	if(deviceid == 0x15){
-		EPD_Printf(0, 32,font16, BLACK,"MAX30102 OK");
-	} else {
-		EPD_Printf(0, 32,font16, BLACK,"MAX30102 ERR");
+	//Read chip id.	
+	MAX30102_ReadReg( 0xFF, buf, 1 );
+	if( buf[0] == 0x15 )
+	{
+		EPD_Printf(0, line*16, font16, BLACK,"MAX30102 OK");
+	} 
+	else 
+	{
+		EPD_Printf(0, line*16, font16, BLACK,"MAX30102 ERR");
 	}
+	line++;
 	EPD_PartialDisplay(imageCache);
-	DelayMs(2000);
+	WAIT_BUSY;
 	EPD_Sleep();
+
+	//Reset chip.
+	uint8_t dat[3] = {0};
+	dat[0] = 0x01<<6;
+	MAX30102_WriteReg( 0x09, dat, 1);
+	DelayMs(10);
+	MAX30102_ReadReg( 0x09, buf, 1 );
+	if( buf[0] == 0)
+	{
+		EPD_Printf(0, line*16, font16, BLACK,"RESET OK");
+	} 
+	else 
+	{
+		EPD_Printf(0, line*16, font16, BLACK,"RESET ERR, return: %d",buf[0]);
+	}
+	line++;
+	EPD_PartialDisplay(imageCache);
+	WAIT_BUSY;
+	EPD_Sleep();
+
+	//Get temperature
+	dat[0] = 0x01<<1;
+	MAX30102_WriteReg( 0x03, dat, 1);//enable temperature interrupt
+	dat[0] = 0x01;
+	MAX30102_WriteReg( 0x21, dat, 1);//enable temperature measurement
+	uint16_t overtime = 0;
+	while(1)
+	{
+		MAX30102_ReadReg( 0x01, buf, 1);//check temp measure is complete or not.
+		if(buf[0] == 0x01<<1){break;}
+		else{DelayMs(1);overtime++;}
+	}
+
+	if( overtime < 1000 )
+	{	
+		EPD_Printf(8*10+1, line*16, font16, BLACK, "INT:%d",buf[0]); //print int status
+		MAX30102_ReadReg( 0x1F, buf, 2); //read temp
+		EPD_Printf(0, line*16, font16, BLACK,"TEMP:%02d.%02d", buf[0], buf[1]*6+buf[1]>>2); //show temp
+	}
+	else
+	{
+		EPD_Printf(0, line*16, font16, BLACK,"TEMP OVERTIME.");
+	}
+	line++;
+	EPD_PartialDisplay(imageCache);
+	WAIT_BUSY;
+	EPD_Sleep();
+
+	//
+
+	
+
+
 
 	while(1);
 

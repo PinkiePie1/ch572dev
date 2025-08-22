@@ -110,7 +110,7 @@ void main(void)
 	sys_safe_access_disable();
 
     RTC_InitClock(Count_2047);
-	RTC_InitTime(2025,8,22,3,20,0);
+	RTC_InitTime(2025,8,22,4,20,0);
 	PFIC_EnableIRQ( RTC_IRQn );
 	PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_RTC_WAKE, Fsys_Delay_4096);//开启RTC唤醒使能
 
