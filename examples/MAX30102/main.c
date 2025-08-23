@@ -18,8 +18,8 @@
 uint32_t humid;
 uint32_t temperature;
 __attribute__((__aligned__(4))) uint8_t imageCache[2888]={0};
-__attribute__((__aligned__(4))) uint8_t buf[128]={0};
-__attribute__((__aligned__(4))) uint16_t Meas_Data[128]={0};
+__attribute__((__aligned__(4))) uint8_t buf[6*32]={0};
+__attribute__((__aligned__(4))) uint16_t Meas_Data[152]={0};
 uint8_t refreshCount = 250;
 uint8_t img_index = 0;
 uint8_t rawData[9];
@@ -120,9 +120,9 @@ void main(void)
 		EPD_Printf(0, line*16, font16, BLACK,"MAX30102 ERR");
 	}
 	line++;
-	EPD_PartialDisplay(imageCache);
-	WAIT_BUSY;
-	EPD_Sleep();
+	//EPD_PartialDisplay(imageCache);
+	//WAIT_BUSY;
+	//EPD_Sleep();
 
 	//Reset chip.
 	uint8_t dat[3] = {0};
@@ -139,9 +139,9 @@ void main(void)
 		EPD_Printf(0, line*16, font16, BLACK,"RESET ERR, return: %d",buf[0]);
 	}
 	line++;
-	EPD_PartialDisplay(imageCache);
-	WAIT_BUSY;
-	EPD_Sleep();
+	//EPD_PartialDisplay(imageCache);
+	//WAIT_BUSY;
+	//EPD_Sleep();
 
 	//Get temperature
 	dat[0] = 0x01<<1;
@@ -171,9 +171,95 @@ void main(void)
 	WAIT_BUSY;
 	EPD_Sleep();
 
-	//Start IR heartbeat mode.
+	//Set LED pulse, ADC resolution and averaging
 
+	dat[0] = 0xD0; //fifo rollover enabled, average over 32 samples.
+	MAX30102_WriteReg( 0x08, dat, 1);
+
+	dat[0] = 0x79;//highest adc range, 1600 samples per second,16bit resolution
+	MAX30102_WriteReg( 0x0A, dat, 1);
+
+	memset(dat,0x00,3);
+	MAX30102_WriteReg( 0x04, dat, 3);//clear fifo.
+
+	dat[0] = 0xC0;
+	MAX30102_WriteReg( 0x02, dat, 1);//set interrupt
+
+	//pulse amplitude
+	dat[0] = 0x2F;
+	dat[1] = 0x2F;
+	MAX30102_WriteReg( 0x0C, dat, 2);
+
+	dat[0] = 0x02;//heartrate mode,turn on both LEDs, start reading.
+	MAX30102_WriteReg( 0x09, dat, 1);
+
+	int16_t samples_to_collect = 152;
 	
+	while( samples_to_collect > 0 )
+	{
+		DelayMs(300);
+		MAX30102_ReadReg( 0x04, buf, 3);//read fifo read and write pointer
+
+		uint8_t l = (buf[0] >= buf[2]) ? buf[0]-buf[2] : buf[0]+32-buf[2];
+		if(l==0){continue;}
+		//read fifo
+		memset(buf,0x00,3*l);
+		MAX30102_ReadReg( 0x07, buf, 3*l );
+		//process data
+		uint16_t data_index = 152-samples_to_collect;
+		samples_to_collect -= l;
+		for(uint16_t i=0; i<l;i++){
+			{
+				Meas_Data[data_index]= (buf[i*3+1] << 8) | buf[i*3+2];
+				data_index++;
+
+			}
+
+		}
+		
+
+		
+	}
+	
+	//find data peak
+	uint32_t peak_meas = 0;
+	uint32_t min_meas = 0xFFFF;
+	for(uint16_t i = 0; i<152;i++)
+	{
+		if( Meas_Data[i] > peak_meas )
+		{
+			peak_meas = Meas_Data[i];
+		}
+
+		if( min_meas > Meas_Data[i] )
+		{
+			min_meas = Meas_Data[i];
+		}
+
+	}
+
+	uint32_t amplitude = peak_meas-min_meas;
+	amplitude = amplitude/128;
+	
+
+	for(uint16_t i = 0; i<152;i++)
+	{
+		Meas_Data[i] = Meas_Data[i]-min_meas;
+		Meas_Data[i] = Meas_Data[i]/amplitude;
+	}
+	
+	memset(imageCache,0x00,2888);
+
+	EPD_Printf(0,0,font16,BLACK,"IR max:%d,min:%d",peak_meas,min_meas);
+	for(uint16_t i = 0; i<152;i++)
+	{
+		drawPixel(i,Meas_Data[i]+20,BLACK);
+	}
+
+	EPD_Init();
+	EPD_SendDisplay(imageCache);
+	WAIT_BUSY;
+	EPD_Sleep();
 
 	dat[0] = 1 << 7;
 	MAX30102_WriteReg(0x09,dat,1);//shutdown.

@@ -40,6 +40,11 @@ static inline void setPixel(uint16_t x, uint16_t y, uint8_t color)
 
 }
 
+void drawPixel(uint16_t x, uint16_t y, uint8_t color)
+{
+	setPixel(x,y,color);
+}
+
 //放大式地画像素，比如2倍放大就会在对应位置画四个像素。注意xy值也会被相应的放大。
 __HIGH_CODE
 static inline void scaledSetPixel(uint16_t x, uint16_t y, uint8_t color, uint8_t scale)

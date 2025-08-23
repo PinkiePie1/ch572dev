@@ -11,6 +11,7 @@
 #define WHITE 0x00//白色
 
 void paint_SetImageCache(uint8_t *imagePtr);
+void drawPixel(uint16_t x, uint16_t y, uint8_t color);
 void drawLine(uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, uint8_t color);
 void drawRect(uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, uint8_t color);
 void fillRect(uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, uint8_t color);
