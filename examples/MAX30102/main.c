@@ -125,7 +125,7 @@ void main(void)
 	//EPD_Sleep();
 
 	//Reset chip.
-	uint8_t dat[3] = {0};
+	uint8_t dat[5] = {0};
 	dat[0] = 0x01<<6;
 	MAX30102_WriteReg( 0x09, dat, 1);
 	DelayMs(10);
@@ -172,15 +172,15 @@ void main(void)
 	EPD_Sleep();
 
 	//Set LED pulse, ADC resolution and averaging
-
-	dat[0] = 0xD0; //fifo rollover enabled, average over 32 samples.
+measure:
+	dat[0] = 0x30; //fifo rollover enabled, average over 2 samples.
 	MAX30102_WriteReg( 0x08, dat, 1);
 
-	dat[0] = 0x79;//highest adc range, 1600 samples per second,16bit resolution
+	dat[0] = 0x61;//highest adc range, 50 samples per second,16bit resolution
 	MAX30102_WriteReg( 0x0A, dat, 1);
 
-	memset(dat,0x00,3);
-	MAX30102_WriteReg( 0x04, dat, 3);//clear fifo.
+	memset(dat,0x00,4);
+	MAX30102_WriteReg( 0x04, dat, 4);//clear fifo.
 
 	dat[0] = 0xC0;
 	MAX30102_WriteReg( 0x02, dat, 1);//set interrupt
@@ -193,38 +193,53 @@ void main(void)
 	dat[0] = 0x02;//heartrate mode,turn on both LEDs, start reading.
 	MAX30102_WriteReg( 0x09, dat, 1);
 
-	int16_t samples_to_collect = 152;
+	uint16_t samples_to_collect = 152;
+	uint16_t samples_to_ignore = 3;
+	uint8_t l = 0;
+
+	while(samples_to_ignore > 0)
+	{	
+		DelayMs(10);
+		MAX30102_ReadReg( 0x04, buf, 3);
+		l = (buf[0] >= buf[2]) ? buf[0]-buf[2] : buf[0]+32-buf[2];
+		if(l==0){continue;}
+		MAX30102_ReadReg( 0x07, buf, 3*l );
+		l = samples_to_ignore > l ? l : samples_to_ignore;
+		samples_to_ignore -= l;
+	}
 	
-	while( samples_to_collect > 0 )
+	while( samples_to_collect != 0 )
 	{
-		DelayMs(300);
+		DelayMs(1000);
 		MAX30102_ReadReg( 0x04, buf, 3);//read fifo read and write pointer
 
-		uint8_t l = (buf[0] >= buf[2]) ? buf[0]-buf[2] : buf[0]+32-buf[2];
+		l = (buf[0] >= buf[2]) ? buf[0]-buf[2] : buf[0]+32-buf[2];
 		if(l==0){continue;}
 		//read fifo
 		memset(buf,0x00,3*l);
 		MAX30102_ReadReg( 0x07, buf, 3*l );
 		//process data
 		uint16_t data_index = 152-samples_to_collect;
+		l = samples_to_collect > l ? l : samples_to_collect;
 		samples_to_collect -= l;
-		for(uint16_t i=0; i<l;i++){
+		for(uint16_t i=0; i<l;i++)
 			{
 				Meas_Data[data_index]= (buf[i*3+1] << 8) | buf[i*3+2];
 				data_index++;
 
 			}
-
-		}
-		
-
 		
 	}
 	
-	//find data peak
+	//running average
+	for(uint16_t i = 0; i<150;i++)
+	{
+		Meas_Data[i] = ( Meas_Data[i] >> 1 ) + ( Meas_Data[i+1] >> 2 ) + ( Meas_Data[i+2] >> 2 );
+	}
+	
 	uint32_t peak_meas = 0;
 	uint32_t min_meas = 0xFFFF;
-	for(uint16_t i = 0; i<152;i++)
+	for(uint16_t i = 0; i<150;i++)
 	{
 		if( Meas_Data[i] > peak_meas )
 		{
@@ -239,30 +254,45 @@ void main(void)
 	}
 
 	uint32_t amplitude = peak_meas-min_meas;
-	amplitude = amplitude/128;
+	//amplitude = amplitude/128;
 	
 
-	for(uint16_t i = 0; i<152;i++)
+	for(uint16_t i = 0; i<150;i++)
 	{
 		Meas_Data[i] = Meas_Data[i]-min_meas;
-		Meas_Data[i] = Meas_Data[i]/amplitude;
+		Meas_Data[i] = (uint32_t)Meas_Data[i]*128/amplitude;
 	}
 	
 	memset(imageCache,0x00,2888);
 
 	EPD_Printf(0,0,font16,BLACK,"IR max:%d,min:%d",peak_meas,min_meas);
-	for(uint16_t i = 0; i<152;i++)
+	
+	for(uint16_t i = 0; i<149;i++)
 	{
-		drawPixel(i,Meas_Data[i]+20,BLACK);
+		drawLine(i,Meas_Data[i]+20,i,Meas_Data[i+1]+20,BLACK);
+		//drawPixel(i,Meas_Data[i]+20,BLACK);
 	}
 
+	if(refreshCount>8)
+	{
 	EPD_Init();
 	EPD_SendDisplay(imageCache);
 	WAIT_BUSY;
 	EPD_Sleep();
-
+	refreshCount=0;
+	}
+	else
+	{
+	EPD_PartialDisplay(imageCache);
+	WAIT_BUSY;
+	EPD_Sleep();
+	refreshCount++;
+	}
 	dat[0] = 1 << 7;
 	MAX30102_WriteReg(0x09,dat,1);//shutdown.
+
+	DelayMs(20000);
+	goto measure;
 	while(1);
 
 }
