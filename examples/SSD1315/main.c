@@ -7,6 +7,7 @@
  *********************************************************************************/
 #include "CH57x_common.h"
 #include "main.h"
+#include "img.h"
 #include "SSD1315.h"
 
 __attribute__((__aligned__(4))) uint8_t imageCache[1024]={0};
@@ -56,11 +57,11 @@ void main(void)
 
     while(1){
         DelayMs(1000);
-        memset(imageCache,0x0F,1024);
-        OLED_GDDRAM(imageCache);
+        //memset(imageCache,0xAA,1024);
+        OLED_GDDRAM((uint8_t *)gImage_f2);
         DelayMs(1000);
-        memset(imageCache,0xF0,1024);
-        OLED_GDDRAM(imageCache);
+        //memset(imageCache,0x55,1024);
+        OLED_GDDRAM((uint8_t *)gImage_f1);
     }
     //DelayMs(5000);
     //OLED_TurnOff();
