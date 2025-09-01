@@ -56,10 +56,10 @@ void main(void)
     OLED_GDDRAM(imageCache);
 
     while(1){
-        DelayMs(1000);
+        DelayMs(500);
         //memset(imageCache,0xAA,1024);
         OLED_GDDRAM((uint8_t *)gImage_f2);
-        DelayMs(1000);
+        DelayMs(500);
         //memset(imageCache,0x55,1024);
         OLED_GDDRAM((uint8_t *)gImage_f1);
     }

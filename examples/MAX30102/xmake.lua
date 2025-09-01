@@ -1,4 +1,4 @@
-target("SHT_152")
+target("MAX30102")
     set_kind("binary")
     set_toolchains("wch-riscv-gcc")
     add_deps("ch572")

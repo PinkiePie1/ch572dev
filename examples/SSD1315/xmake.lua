@@ -1,4 +1,4 @@
-target("blink")
+target("SSD1315")
     set_kind("binary")
     set_toolchains("wch-riscv-gcc")
     add_deps("ch572")
