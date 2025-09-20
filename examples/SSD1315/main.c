@@ -45,7 +45,7 @@ void main(void)
 
     for (uint16_t i = 0; i < 1024; i++) 
     {
-        imageCache[i] = (i & 0x00FF);
+        imageCache[i] = (i & 0x00AA);
     }
 
     OLED_GDDRAM(imageCache);
