@@ -8,7 +8,7 @@
 #include "CH57x_common.h"
 #include "main.h"
 #include "img.h"
-#include "SSD1315.h"
+#include "SSD1315.avi"
 
 __attribute__((__aligned__(4))) uint8_t imageCache[1024]={0};
 

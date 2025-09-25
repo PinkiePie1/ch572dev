@@ -1,4 +1,4 @@
-#include "SSD1315.h"
+#include "SSD1315.avi"
 
 uint8_t err=0;
 //初始化输入
