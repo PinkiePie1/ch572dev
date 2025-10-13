@@ -1,0 +1,3 @@
+The power management circuit is sensitive to component parameters and load conditions.
+
+How to tune: Use the resistor values in the schmatic as baseline. Let the MCU `while(1);`, supply a triangular wave at `CS+`, you should see the PM circuit turns on at certain voltage `Von` and turns off at certain voltage `Voff`. Change R2 until Von is around 4.4 V and then change R11 until Voff is around 2.6 V.
