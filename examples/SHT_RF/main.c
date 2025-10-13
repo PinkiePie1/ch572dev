@@ -7,14 +7,10 @@
  *********************************************************************************/
 #include "CH57x_common.h"
 #include "main.h"
-#include "miniGUI.h"
-#include "imageData.h"
 #include "SHT40.h"
-#include "EPD_1IN54_SSD1680.h"
 #include <CH572rf.h>
-//#include <stdlib.h>
 
-#define POWER_PIN 0 //如果用5V，这里改成1
+#define POWER_PIN 1 //如果用5V，这里改成1
 
 uint32_t humid;
 uint32_t temperature;
@@ -93,11 +89,6 @@ void main(void)
     
 	GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
 
-//	EPD_Hal_Init();
-    GPIOA_ITModeCfg(EPD_BUSY_PIN, GPIO_ITMode_FallEdge); 
-    PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_GPIO_WAKE, Fsys_Delay_4096);
-//	EPD_Init();	
-//	EPD_Sleep();
 	SoftI2CInit();
 
 	//读取芯片MAC地址
@@ -166,57 +157,8 @@ measure:
 	TxBuf[19] = ( ((humid%100)/10) << 4 ) | humid%10;
 	TxBuf[20] = ( (temperature/1000) << 4 ) | ((temperature%1000) / 100);
 	TxBuf[21] = ( ((temperature%100)/10) << 4 ) | temperature %10;
-/*
-	uint8_t textcolor = BLACK;
-	img_index = (temperature%3);
-	if(imageCache != NULL)
-	{
 
-		//memset(imageCache,0x00,2888);
-		switch (img_index)
-		{
-		case 0:
-			memcpy(imageCache,gImage_mi1,2888);
-			textcolor = BLACK;
-			break;
-		case 1:
-			memcpy(imageCache,gImage_mi2,2888);
-			textcolor = BLACK;
-			break;
-		case 2:
-			memcpy(imageCache,gImage_cat,2888);
-			textcolor = BLACK;
-			break;
-		default:
-			break;
-		}
-
-		paint_SetImageCache(imageCache);
-
-		EPD_Printf(0,0,font16,textcolor,"T:%02d.%02d",temperature/100,temperature%100);
-		EPD_Printf(64,0,font16,textcolor,"H:%02d.%02d%%",humid/100,humid%100);
-
-		if( refreshCount >= 5 )
-		{
-        	EPD_Init();	
-			EPD_SendDisplay(imageCache);			
-			refreshCount = 0;
-		}
-		else
-		{
-			EPD_PartialDisplay(imageCache);
-			refreshCount++;
-		}
-		
-	}
-
-	PFIC_EnableIRQ( GPIO_A_IRQn) ;
-	MySleep(POWER_PIN);
-	EPD_Sleep();
-	RFIP_WakeUpRegInit();
-	PFIC_DisableIRQ( GPIO_A_IRQn) ;
-*/
-	for( uint8_t i = 0 ; i < 4 ; i++ )
+	for( uint8_t i = 0 ; i < 200 ; i++ )
 	{
 		
 		gTxParam.whiteChannel=0x37; 
@@ -237,7 +179,7 @@ measure:
 		RFIP_StartTx( &gTxParam );
 		do{__nop();}while(tx_flag == 1); 
 		
-		RTC_TRIGFunCfg(32*20);
+		RTC_TRIGFunCfg(32*50);
 		MySleep(POWER_PIN);	
 		RFIP_WakeUpRegInit();
 	}
