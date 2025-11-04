@@ -9,6 +9,7 @@
 #include "main.h"
 #include "img.h"
 #include "SSD1315.avi"
+#include "miniGUI.h"
 
 __attribute__((__aligned__(4))) uint8_t imageCache[1024]={0};
 
@@ -40,26 +41,23 @@ void main(void)
 #else
 
     OLED_Init();
-    imageCache[0] = 0x01;
-    imageCache[2] = 0xFF;
-
-    for (uint16_t i = 0; i < 1024; i++) 
-    {
-        imageCache[i] = (i & 0x00AA);
-    }
-
-    OLED_GDDRAM(imageCache);
     OLED_TurnOn();
-    DelayMs(5000);
+    DelayMs(1000);
 
-    memset(imageCache,0x0F,1024);
+    paint_SetImageCache(imageCache);
+
+    drawLine(1,1,9,1,BLACK);
+    drawLine(15,20,15,50,BLACK);
+    drawRect(40,40,60,60,BLACK);
+    drawChar(41,41,'S',font16,BLACK);
     OLED_GDDRAM(imageCache);
+    while(1);
 
     while(1){
-        DelayMs(500);
+        DelayMs(400);
         //memset(imageCache,0xAA,1024);
         OLED_GDDRAM((uint8_t *)gImage_f2);
-        DelayMs(500);
+        DelayMs(400);
         //memset(imageCache,0x55,1024);
         OLED_GDDRAM((uint8_t *)gImage_f1);
     }
