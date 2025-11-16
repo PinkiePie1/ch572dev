@@ -51,13 +51,13 @@ void main(void)
     drawRect(40,40,60,60,BLACK);
     drawChar(41,41,'S',font16,BLACK);
     OLED_GDDRAM(imageCache);
-    while(1);
+    DelayMs(3000);
 
     while(1){
-        DelayMs(400);
+        DelayMs(450);
         //memset(imageCache,0xAA,1024);
         OLED_GDDRAM((uint8_t *)gImage_f2);
-        DelayMs(400);
+        DelayMs(450);
         //memset(imageCache,0x55,1024);
         OLED_GDDRAM((uint8_t *)gImage_f1);
     }
