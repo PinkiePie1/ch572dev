@@ -13,7 +13,7 @@ void cmp_adc_init(void)
 uint8_t cmp_adc_isbigger(uint8_t target)
 {
     uint8_t result = 0;
-    R32_CMP_CTRL = (0x01 << 2) | (target << 4) | RB_CMP_EN; //PA7输入,开启比较
+    R32_CMP_CTRL = (0x01 << 2) | (target << 4) | RB_CMP_EN; //PA3输入,开启比较
     //DelayUs(5000);
     if ( R32_CMP_CTRL & (0x01 << 25) ){ result = 1; }//如果输出为1,则说明大于设定
     R32_CMP_CTRL = 0;
