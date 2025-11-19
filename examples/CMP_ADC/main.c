@@ -23,11 +23,20 @@ void main(void)
     GPIOA_ModeCfg(LED_PIN, GPIO_ModeOut_PP_5mA);
     GPIOInit();
 
-    while( 1 )
+    for(uint8_t i=0;i<5;i++)
     {
         GPIOA_SetBits(LED_PIN);
         DelayMs(500);
         GPIOA_ResetBits(LED_PIN);
+        DelayMs(50);
+    }
+    GPIOA_ResetBits(LED_PIN);
+
+    cmp_adc_init();
+    while(1)
+    {
+        if (cmp_adc_isbigger(15UL)){GPIOA_SetBits(LED_PIN);}
+        else {GPIOA_ResetBits(LED_PIN);}
         DelayMs(50);
     }
 
