@@ -54,7 +54,7 @@ extern "C" {
 0x1x    内置Root-HUB下的外部HUB的端口x下的USB设备,x为1~n
 */
 #define HUB_MAX_PORTS          4
-#define WAIT_USB_TOUT_200US    800   // 等待USB中断超时时间
+#define WAIT_USB_TOUT_200US    1000   // 等待USB中断超时时间
 
 typedef struct
 {

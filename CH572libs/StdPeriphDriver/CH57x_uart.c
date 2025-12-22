@@ -15,7 +15,7 @@
 /*********************************************************************
  * @fn      UART_DefInit
  *
- * @brief   ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½Ï³ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ * @brief   ´®¿ÚÄ¬ÈÏ³õÊ¼»¯ÅäÖÃ
  *
  * @param   none
  *
@@ -24,7 +24,7 @@
 void UART_DefInit(void)
 {
     UART_BaudRateCfg(115200);
-    R8_UART_FCR = (2 << 6) | RB_FCR_FIFO_EN; // FIFOï¿½ò¿ª£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½4ï¿½Ö½ï¿½
+    R8_UART_FCR = (2 << 6) | RB_FCR_FIFO_EN; // FIFO´ò¿ª£¬´¥·¢µã4×Ö½Ú
     R8_UART_LCR = RB_LCR_WORD_SZ;
     R8_UART_IER = RB_IER_TXD_EN;
     R8_UART_DIV = 1;
@@ -33,9 +33,9 @@ void UART_DefInit(void)
 /*********************************************************************
  * @fn      UART_BaudRateCfg
  *
- * @brief   ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ * @brief   ´®¿Ú²¨ÌØÂÊÅäÖÃ
  *
- * @param   baudrate    - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ * @param   baudrate    - ²¨ÌØÂÊ
  *
  * @return  none
  */
@@ -51,9 +51,9 @@ void UART_BaudRateCfg(uint32_t baudrate)
 /*********************************************************************
  * @fn      UART_ByteTrigCfg
  *
- * @brief   ï¿½ï¿½ï¿½ï¿½ï¿½Ö½Ú´ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½
+ * @brief   ´®¿Ú×Ö½Ú´¥·¢ÖÐ¶ÏÅäÖÃ
  *
- * @param   b       - ï¿½ï¿½ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½ refer to UARTByteTRIGTypeDef
+ * @param   b       - ´¥·¢×Ö½ÚÊý refer to UARTByteTRIGTypeDef
  *
  * @return  none
  */
@@ -65,14 +65,14 @@ void UART_ByteTrigCfg(UARTByteTRIGTypeDef b)
 /*********************************************************************
  * @fn      UART_INTCfg
  *
- * @brief   ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½
+ * @brief   ´®¿ÚÖÐ¶ÏÅäÖÃ
  *
- * @param   s       - ï¿½Ð¶Ï¿ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ç·ï¿½Ê¹ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½Ð¶ï¿½
- * @param   i       - ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½
- *                    RB_IER_MODEM_CHG  - ï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ä»¯ï¿½Ð¶ï¿½Ê¹ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ UART Ö§ï¿½Ö£ï¿½
- *                    RB_IER_LINE_STAT  - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â·×´Ì¬ï¿½Ð¶ï¿½
- *                    RB_IER_THR_EMPTY  - ï¿½ï¿½ï¿½Í±ï¿½ï¿½Ö¼Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½
- *                    RB_IER_RECV_RDY   - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½
+ * @param   s       - ÖÐ¶Ï¿ØÖÆ×´Ì¬£¬ÊÇ·ñÊ¹ÄÜÏàÓ¦ÖÐ¶Ï
+ * @param   i       - ÖÐ¶ÏÀàÐÍ
+ *                    RB_IER_MODEM_CHG  - µ÷ÖÆ½âµ÷Æ÷ÊäÈë×´Ì¬±ä»¯ÖÐ¶ÏÊ¹ÄÜÎ»£¨½ö UART Ö§³Ö£©
+ *                    RB_IER_LINE_STAT  - ½ÓÊÕÏßÂ·×´Ì¬ÖÐ¶Ï
+ *                    RB_IER_THR_EMPTY  - ·¢ËÍ±£³Ö¼Ä´æÆ÷¿ÕÖÐ¶Ï
+ *                    RB_IER_RECV_RDY   - ½ÓÊÕÊý¾ÝÖÐ¶Ï
  *
  * @return  none
  */
@@ -92,10 +92,10 @@ void UART_INTCfg(FunctionalState s, uint8_t i)
 /*********************************************************************
  * @fn      UART_SendString
  *
- * @brief   ï¿½ï¿½ï¿½Ú¶ï¿½ï¿½Ö½Ú·ï¿½ï¿½ï¿½
+ * @brief   ´®¿Ú¶à×Ö½Ú·¢ËÍ
  *
- * @param   buf     - ï¿½ï¿½ï¿½ï¿½ï¿½Íµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×µï¿½Ö·
- * @param   l       - ï¿½ï¿½ï¿½ï¿½ï¿½Íµï¿½ï¿½ï¿½ï¿½Ý³ï¿½ï¿½ï¿½
+ * @param   buf     - ´ý·¢ËÍµÄÊý¾ÝÄÚÈÝÊ×µØÖ·
+ * @param   l       - ´ý·¢ËÍµÄÊý¾Ý³¤¶È
  *
  * @return  none
  */
@@ -116,11 +116,11 @@ void UART_SendString(uint8_t *buf, uint16_t l)
 /*********************************************************************
  * @fn      UART_RecvString
  *
- * @brief   ï¿½ï¿½ï¿½Ú¶ï¿½È¡ï¿½ï¿½ï¿½Ö½ï¿½
+ * @brief   ´®¿Ú¶ÁÈ¡¶à×Ö½Ú
  *
- * @param   buf     - ï¿½ï¿½È¡ï¿½ï¿½ï¿½Ý´ï¿½Å»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×µï¿½Ö·
+ * @param   buf     - ¶ÁÈ¡Êý¾Ý´æ·Å»º´æÇøÊ×µØÖ·
  *
- * @return  ï¿½ï¿½È¡ï¿½ï¿½ï¿½Ý³ï¿½ï¿½ï¿½
+ * @return  ¶ÁÈ¡Êý¾Ý³¤¶È
  */
 uint16_t UART_RecvString(uint8_t *buf)
 {
@@ -138,10 +138,10 @@ uint16_t UART_RecvString(uint8_t *buf)
 /*********************************************************************
  * @fn      UART_Remap
  *
- * @brief   ï¿½ï¿½ï¿½ï¿½Ó³ï¿½ï¿½
+ * @brief   ´®¿ÚÓ³Éä
  *
- * @param   s       - ï¿½Ç·ï¿½Ê¹ï¿½ï¿½Ó³ï¿½ï¿½
- * @param   perph   - Ð´Txï¿½ï¿½Rxï¿½ï¿½Ó³ï¿½ï¿½ï¿½Ïµ
+ * @param   s       - ÊÇ·ñÊ¹ÄÜÓ³Éä
+ * @param   perph   - Ð´TxÓëRxµÄÓ³Éä¹ØÏµ
  *
  *
  * @return  none
@@ -150,7 +150,7 @@ void UART_Remap(FunctionalState s, UARTTxPinRemapDef u_tx, UARTRxPinRemapDef u_r
 {
     if(s)
     {
-        R16_PIN_ALTERNATE_H &= ~(RB_UART_TXD | RB_UART_RXD); // ï¿½Ã¼Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïµç¸´Î»ï¿½ï¿½ShutDownË¯ï¿½ï¿½Ê±ï¿½ï¿½0
+        R16_PIN_ALTERNATE_H &= ~(RB_UART_TXD | RB_UART_RXD); // ¸Ã¼Ä´æÆ÷½öÔÚÉÏµç¸´Î»ºÍShutDownË¯ÃßÊ±Çå0
         R16_PIN_ALTERNATE_H |= (u_tx << 3) | u_rx;
     }
     else

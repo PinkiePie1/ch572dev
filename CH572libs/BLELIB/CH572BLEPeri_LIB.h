@@ -1,7 +1,7 @@
 /********************************** (C) COPYRIGHT ******************************
  * File Name         : CH572BLEPeri_LIB.H
  * Author            : WCH
- * Version           : V1.20
+ * Version           : V1.21
  * Date              : 2024/03/14
  * Description       : head file(CH572)
  * Copyright (c) 2023 Nanjing Qinheng Microelectronics Co., Ltd.
@@ -182,22 +182,22 @@ extern const uint8_t VER_LIB[];  // LIB version
 #endif
 
 /* TxPower define(Accuracy:¡À2dBm) */
-#define LL_TX_POWEER_MINUS_25_DBM       0x01
-#define LL_TX_POWEER_MINUS_20_DBM       0x02
-#define LL_TX_POWEER_MINUS_15_DBM       0x03
-#define LL_TX_POWEER_MINUS_10_DBM       0x05
-#define LL_TX_POWEER_MINUS_8_DBM        0x07
-#define LL_TX_POWEER_MINUS_5_DBM        0x0A
-#define LL_TX_POWEER_MINUS_3_DBM        0x0C
-#define LL_TX_POWEER_MINUS_1_DBM        0x10
-#define LL_TX_POWEER_0_DBM              0x12
-#define LL_TX_POWEER_1_DBM              0x15
-#define LL_TX_POWEER_2_DBM              0x18
-#define LL_TX_POWEER_3_DBM              0x1B
-#define LL_TX_POWEER_4_DBM              0x1F
-#define LL_TX_POWEER_5_DBM              0x25
-#define LL_TX_POWEER_6_DBM              0x2D
-#define LL_TX_POWEER_7_DBM              0x3B
+#define LL_TX_PWR_MINUS_25_DBM       0x01
+#define LL_TX_PWR_MINUS_20_DBM       0x02
+#define LL_TX_PWR_MINUS_15_DBM       0x03
+#define LL_TX_PWR_MINUS_10_DBM       0x05
+#define LL_TX_PWR_MINUS_8_DBM        0x07
+#define LL_TX_PWR_MINUS_5_DBM        0x0A
+#define LL_TX_PWR_MINUS_3_DBM        0x0C
+#define LL_TX_PWR_MINUS_1_DBM        0x10
+#define LL_TX_PWR_0_DBM              0x12
+#define LL_TX_PWR_1_DBM              0x15
+#define LL_TX_PWR_2_DBM              0x18
+#define LL_TX_PWR_3_DBM              0x1B
+#define LL_TX_PWR_4_DBM              0x1F
+#define LL_TX_PWR_5_DBM              0x25
+#define LL_TX_PWR_6_DBM              0x2D
+
 
 /* ERR_LIB_INIT define */
 #define ERR_LLE_IRQ_HANDLE              0x01
@@ -2608,218 +2608,6 @@ extern bStatus_t GATT_Notification( uint16_t connHandle, attHandleValueNoti_t *p
  *          bleTimeout: Previous transaction timed out.<BR>
  */
 extern bStatus_t GATT_ExchangeMTU( uint16_t connHandle, attExchangeMTUReq_t *pReq, uint8_t taskId );
-
-/**
- * @brief   This sub-procedure is used by a client to discover all
- *          the primary services on a server.
- *
- *          The ATT Read By Group Type Request is used with the Attribute
- *          Type parameter set to the UUID for "Primary Service". The
- *          Starting Handle is set to 0x0001 and the Ending Handle is
- *          set to 0xFFFF.
- *
- *          If the return status from this function is SUCCESS, the calling
- *          application task will receive multiple tmos GATT_MSG_EVENT messages.
- *          The type of the messages will be either ATT_READ_BY_GRP_TYPE_RSP
- *          or ATT_ERROR_RSP (if an error occurred on the server).
- *
- * @note    This sub-procedure is complete when either ATT_READ_BY_GRP_TYPE_RSP
- *          (with bleProcedureComplete or bleTimeout status) or ATT_ERROR_RSP
- *          (with SUCCESS status) is received by the calling application task.
- *
- * @param   connHandle - connection to use
- * @param   taskId - task to be notified of response
- *
- * @return  SUCCESS: Request was sent successfully.<BR>
- *          INVALIDPARAMETER: Invalid connection handle or request field.<BR>
- *          MSG_BUFFER_NOT_AVAIL: No HCI buffer is available.<BR>
- *          bleNotConnected: Connection is down.<BR>
- *          blePending: A response is pending with this server.<BR>
- *          bleMemAllocError: Memory allocation error occurred.<BR>
- *          bleTimeout: Previous transaction timed out.<BR>
- */
-extern bStatus_t GATT_DiscAllPrimaryServices( uint16_t connHandle, uint8_t taskId );
-
-/**
- * @brief   This sub-procedure is used by a client to discover a specific
- *          primary service on a server when only the Service UUID is
- *          known. The primary specific service may exist multiple times
- *          on a server. The primary service being discovered is identified
- *          by the service UUID.
- *
- *          The ATT Find By Type Value Request is used with the Attribute
- *          Type parameter set to the UUID for "Primary Service" and the
- *          Attribute Value set to the 16-bit Bluetooth UUID or 128-bit
- *          UUID for the specific primary service. The Starting Handle shall
- *          be set to 0x0001 and the Ending Handle shall be set to 0xFFFF.
- *
- *          If the return status from this function is SUCCESS, the calling
- *          application task will receive multiple tmos GATT_MSG_EVENT messages.
- *          The type of the messages will be either ATT_FIND_BY_TYPE_VALUE_RSP
- *          or ATT_ERROR_RSP (if an error occurred on the server).
- *
- * @note    This sub-procedure is complete when either ATT_FIND_BY_TYPE_VALUE_RSP
- *          (with bleProcedureComplete or bleTimeout status) or ATT_ERROR_RSP
- *          (with SUCCESS status) is received by the calling application task.
- *
- * @param   connHandle - connection to use
- * @param   pUUID - pointer to service UUID to look for
- * @param   len - length of value
- * @param   taskId - task to be notified of response
- *
- * @return  SUCCESS: Request was sent successfully.<BR>
- *          INVALIDPARAMETER: Invalid connection handle or request field.<BR>
- *          MSG_BUFFER_NOT_AVAIL: No HCI buffer is available.<BR>
- *          bleNotConnected: Connection is down.<BR>
- *          blePending: A response is pending with this server.<BR>
- *          bleMemAllocError: Memory allocation error occurred.<BR>
- *          bleTimeout: Previous transaction timed out.<BR>
- */
-extern bStatus_t GATT_DiscPrimaryServiceByUUID( uint16_t connHandle, uint8_t *pUUID, uint8_t len, uint8_t taskId );
-
-/**
- * @brief   This sub-procedure is used by a client to find include
- *          service declarations within a service definition on a
- *          server. The service specified is identified by the service
- *          handle range.
- *
- *          The ATT Read By Type Request is used with the Attribute
- *          Type parameter set to the UUID for "Included Service". The
- *          Starting Handle is set to starting handle of the specified
- *          service and the Ending Handle is set to the ending handle
- *          of the specified service.
- *
- *          If the return status from this function is SUCCESS, the calling
- *          application task will receive multiple tmos GATT_MSG_EVENT messages.
- *          The type of the messages will be either ATT_READ_BY_TYPE_RSP
- *          or ATT_ERROR_RSP (if an error occurred on the server).
- *
- * @note    This sub-procedure is complete when either ATT_READ_BY_TYPE_RSP
- *          (with bleProcedureCompleteor bleTimeout status)or ATT_ERROR_RSP
- *          (with SUCCESS status) is received by the calling application task.
- *
- * @param   connHandle - connection to use
- * @param   startHandle - starting handle
- * @param   endHandle - end handle
- * @param   taskId - task to be notified of response
- *
- * @return  SUCCESS: Request was sent successfully.<BR>
- *          INVALIDPARAMETER: Invalid connection handle or request field.<BR>
- *          MSG_BUFFER_NOT_AVAIL: No HCI buffer is available.<BR>
- *          bleNotConnected: Connection is down.<BR>
- *          blePending: A response is pending with this server.<BR>
- *          bleMemAllocError: Memory allocation error occurred.<BR>
- *          bleTimeout: Previous transaction timed out.<BR>
- */
-extern bStatus_t GATT_FindIncludedServices( uint16_t connHandle, uint16_t startHandle, uint16_t endHandle, uint8_t taskId );
-
-/**
- * @brief   This sub-procedure is used by a client to find all the
- *          characteristic declarations within a service definition on
- *          a server when only the service handle range is known. The
- *          service specified is identified by the service handle range.
- *
- *          The ATT Read By Type Request is used with the Attribute Type
- *          parameter set to the UUID for "Characteristic". The Starting
- *          Handle is set to starting handle of the specified service and
- *          the Ending Handle is set to the ending handle of the specified
- *          service.
- *
- *          If the return status from this function is SUCCESS, the calling
- *          application task will receive multiple tmos GATT_MSG_EVENT messages.
- *          The type of the messages will be either ATT_READ_BY_TYPE_RSP
- *          or ATT_ERROR_RSP (if an error occurred on the server).
- *
- * @note    This sub-procedure is complete when either ATT_READ_BY_TYPE_RSP
- *          (with bleProcedureComplete or bleTimeout status)or ATT_ERROR_RSP
- *          (with SUCCESS status) is received by the calling application task.
- *
- * @param   connHandle - connection to use
- * @param   startHandle - starting handle
- * @param   endHandle - end handle
- * @param   taskId - task to be notified of response
- *
- * @return  SUCCESS: Request was sent successfully.<BR>
- *          INVALIDPARAMETER: Invalid connection handle or request field.<BR>
- *          MSG_BUFFER_NOT_AVAIL: No HCI buffer is available.<BR>
- *          bleNotConnected: Connection is down.<BR>
- *          blePending: A response is pending with this server.<BR>
- *          bleMemAllocError: Memory allocation error occurred.<BR>
- *          bleTimeout: Previous transaction timed out.<BR>
- */
-extern bStatus_t GATT_DiscAllChars( uint16_t connHandle, uint16_t startHandle, uint16_t endHandle, uint8_t taskId );
-
-/**
- * @brief   This sub-procedure is used by a client to discover service
- *          characteristics on a server when only the service handle
- *          ranges are known and the characteristic UUID is known.
- *          The specific service may exist multiple times on a server.
- *          The characteristic being discovered is identified by the
- *          characteristic UUID.
- *
- *          The ATT Read By Type Request is used with the Attribute Type
- *          is set to the UUID for "Characteristic" and the Starting
- *          Handle and Ending Handle parameters is set to the service
- *          handle range.
- *
- *          If the return status from this function is SUCCESS, the calling
- *          application task will receive multiple tmos GATT_MSG_EVENT messages.
- *          The type of the messages will be either ATT_READ_BY_TYPE_RSP
- *          or ATT_ERROR_RSP (if an error occurred on the server).
- *
- * @note    This sub-procedure is complete when either ATT_READ_BY_TYPE_RSP
- *          (with bleProcedureComplete or bleTimeout status) or ATT_ERROR_RSP
- *          (with SUCCESS status) is received by the calling application task.
- *
- * @param   connHandle - connection to use
- * @param   pReq - pointer to request to be sent
- * @param   taskId - task to be notified of response
- *
- * @return  SUCCESS: Request was sent successfully.<BR>
- *          INVALIDPARAMETER: Invalid connection handle or request field.<BR>
- *          MSG_BUFFER_NOT_AVAIL: No HCI buffer is available.<BR>
- *          bleNotConnected: Connection is down.<BR>
- *          blePending: A response is pending with this server.<BR>
- *          bleMemAllocError: Memory allocation error occurred.<BR>
- *          bleTimeout: Previous transaction timed out.<BR>
- */
-extern bStatus_t GATT_DiscCharsByUUID( uint16_t connHandle, attReadByTypeReq_t *pReq, uint8_t taskId );
-
-/**
- * @brief   This sub-procedure is used by a client to find all the
- *          characteristic descriptors Attribute Handles and Attribute
- *          Types within a characteristic definition when only the
- *          characteristic handle range is known. The characteristic
- *          specified is identified by the characteristic handle range.
- *
- *          The ATT Find Information Request is used with the Starting
- *          Handle set to starting handle of the specified characteristic
- *          and the Ending Handle set to the ending handle of the specified
- *          characteristic. The UUID Filter parameter is NULL (zero length).
- *
- *          If the return status from this function is SUCCESS, the calling
- *          application task will receive multiple tmos GATT_MSG_EVENT messages.
- *          The type of the messages will be either ATT_FIND_INFO_RSP or
- *          ATT_ERROR_RSP (if an error occurred on the server).
- *
- * @note    This sub-procedure is complete when either ATT_FIND_INFO_RSP
- *          (with bleProcedureComplete or bleTimeout status) or ATT_ERROR_RSP
- *          (with SUCCESS status) is received by the calling application task.
- *
- * @param   connHandle - connection to use
- * @param   startHandle - starting handle
- * @param   endHandle - end handle
- * @param   taskId - task to be notified of response
- *
- * @return  SUCCESS: Request was sent successfully.<BR>
- *          INVALIDPARAMETER: Invalid connection handle or request field.<BR>
- *          MSG_BUFFER_NOT_AVAIL: No HCI buffer is available.<BR>
- *          bleNotConnected: Connection is down.<BR>
- *          blePending: A response is pending with this server.<BR>
- *          bleMemAllocError: Memory allocation error occurred.<BR>
- *          bleTimeout: Previous transaction timed out.<BR>
- */
-extern bStatus_t GATT_DiscAllCharDescs( uint16_t connHandle, uint16_t startHandle, uint16_t endHandle, uint8_t taskId );
 
 /**
  * @brief   This sub-procedure is used to read a Characteristic Value

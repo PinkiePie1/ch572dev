@@ -196,10 +196,8 @@ void LowPower_Sleep(uint16_t rm)
     uint8_t x32Mpw;
     uint16_t power_plan;
     uint8_t clk_sys_cfg;
-    uint16_t hfck_pwr_ctrl;
 
     clk_sys_cfg = R8_CLK_SYS_CFG;
-    hfck_pwr_ctrl = R8_HFCK_PWR_CTRL;
     x32Mpw = R8_XT32M_TUNE;
     x32Mpw = (x32Mpw & 0xfc) | 0x03; // 150%额定电流
 
@@ -215,9 +213,6 @@ void LowPower_Sleep(uint16_t rm)
     power_plan = RB_PWR_PLAN_EN | RB_PWR_CORE | rm | (2<<11);
 
     sys_safe_access_enable();
-
-    // 需要测试周期数 目前用的3584
-    R8_SLP_POWER_CTRL |= 0x40;
 
     R16_POWER_PLAN = power_plan;
     sys_safe_access_disable();
@@ -240,7 +235,6 @@ void LowPower_Sleep(uint16_t rm)
 
     sys_safe_access_enable();
     R8_CLK_SYS_CFG = clk_sys_cfg;
-//    R8_HFCK_PWR_CTRL = hfck_pwr_ctrl;
     sys_safe_access_disable();
     sys_safe_access_enable();
     R16_POWER_PLAN &= ~RB_PWR_PLAN_EN;
@@ -285,9 +279,6 @@ void LowPower_Shutdown(uint16_t rm)
 
     SetSysClock(CLK_SOURCE_HSE_PLL_24MHz);
     sys_safe_access_enable();
-    R8_SLP_POWER_CTRL |= 0x40;
-    sys_safe_access_disable();
-    sys_safe_access_enable();
     R16_POWER_PLAN = RB_PWR_PLAN_EN | rm;
     sys_safe_access_disable();
     __WFI();
@@ -295,6 +286,7 @@ void LowPower_Shutdown(uint16_t rm)
     __nop();
     FLASH_ROM_SW_RESET();
     sys_safe_access_enable();
+    R16_INT_LSI_TUNE = 0xFFFF;
     R8_RST_WDOG_CTRL |= RB_SOFTWARE_RESET;
     sys_safe_access_disable();
 }

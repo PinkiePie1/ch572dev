@@ -294,7 +294,7 @@ uint8_t USBHostTransact(uint8_t endp_pid, uint8_t tog, uint32_t timeout)
         R8_USB_INT_FG = RB_UIF_TRANSFER;
         for(i = WAIT_USB_TOUT_200US; i != 0 && (R8_USB_INT_FG & RB_UIF_TRANSFER) == 0; i--)
         {
-            ;
+            DelayUs(1);
         }
         R8_UH_EP_PID = 0x00; // Í£Ö¹USB´«Êä
         if((R8_USB_INT_FG & RB_UIF_TRANSFER) == 0)

@@ -121,7 +121,7 @@ void main(void)
 	gTxParam.crcPoly = 0x80032d;
 	gTxParam.properties = 0;
 	gTxParam.waitTime = 80*2;
-	gTxParam.txPowerVal = LL_TX_POWEER_0_DBM;
+	gTxParam.txPowerVal = LL_TX_PWR_0_DBM;
 	gTxParam.whiteChannel=0x37; // whitening channel
 	gTxParam.txLen = 34;
     gTxParam.frequency = 37;//37信道，注意和上面的0x37对应但不一样。考虑

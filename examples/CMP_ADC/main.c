@@ -9,7 +9,7 @@
 #include "main.h"
 #include "cmpadc.h"
 
-#define LED_PIN GPIO_Pin_8
+#define LED_PIN GPIO_Pin_9
 
 void MySleep(uint8_t use5v);
 

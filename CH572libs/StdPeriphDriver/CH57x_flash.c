@@ -69,7 +69,7 @@ uint8_t UserOptionByteConfig(FunctionalState RESET_EN, FunctionalState UART_NO_K
 
     FLASH_ROM_READ(0x14, &s, 4);
 
-    if(s == 0xF5F9BDA9)
+    if(s == 0xF3F9BDA9)
     {
         s = 0;
         FLASH_EEPROM_CMD(CMD_GET_ROM_INFO, 0x3EFFC, &s, 4);

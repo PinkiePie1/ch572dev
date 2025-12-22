@@ -136,7 +136,7 @@
 #define BLE_TX_NUM_EVENT                    1
 #endif
 #ifndef BLE_TX_POWER
-#define BLE_TX_POWER                        LL_TX_POWEER_0_DBM
+#define BLE_TX_POWER                        LL_TX_PWR_0_DBM
 #endif
 
 extern uint32_t MEM_BUF[BLE_MEMHEAP_SIZE / 4];
