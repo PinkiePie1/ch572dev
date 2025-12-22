@@ -1,10 +1,8 @@
 target("LED_BLE")
 	set_kind("binary")
     set_toolchains("wch-riscv-gcc")
---    add_deps("ch572ble")
     add_deps("ch572")
     add_rules("generateAll")
-
 
 	add_files("./**.c")
 	

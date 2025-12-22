@@ -5,7 +5,7 @@ target("SHT_152")
     add_rules("generateAll")
 
     -- 添加源文件
-    add_files("*.c")
+    add_files("./*.c")
 
     -- 添加头文件搜索路径
     add_includedirs(
