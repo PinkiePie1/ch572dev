@@ -193,8 +193,8 @@ measure:
 
 		paint_SetImageCache(imageCache);
 
-		EPD_Printf(0,0,font16,textcolor,"T:%02d.%02d",temperature/100,temperature%100);
-		EPD_Printf(64,0,font16,textcolor,"H:%02d.%02d%%",humid/100,humid%100);
+		EPD_Printf(0,0,font16,textcolor,"T:%02d.%02dC",temperature/100,temperature%100);
+		EPD_Printf(68,0,font16,textcolor,"H:%02d.%02d%%",humid/100,humid%100);
 
 		if( refreshCount >= 5 )
 		{
