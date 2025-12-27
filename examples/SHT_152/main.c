@@ -216,26 +216,26 @@ measure:
 	RFIP_WakeUpRegInit();
 	PFIC_DisableIRQ( GPIO_A_IRQn) ;
 
-	for( uint8_t i = 0 ; i < 4 ; i++ )
+	for( uint8_t i = 0 ; i < 3 ; i++ )
 	{
 		
 		gTxParam.whiteChannel=0x37; 
 		gTxParam.frequency = 37;
 		tx_flag = 1;
 		RFIP_StartTx( &gTxParam );
-		do{__nop();}while(tx_flag == 1); // 等待发送完成
+		LowPower_Idle(); // 等待发送完成
 		
 		gTxParam.whiteChannel=0x38; 
 		gTxParam.frequency = 38;
 		tx_flag = 1;
 		RFIP_StartTx( &gTxParam );
-		do{__nop();}while(tx_flag == 1); 
+		LowPower_Idle();
 		
 		gTxParam.whiteChannel=0x39; 
 		gTxParam.frequency = 39;
 		tx_flag = 1;
 		RFIP_StartTx( &gTxParam );
-		do{__nop();}while(tx_flag == 1); 
+		LowPower_Idle();
 		
 		RTC_TRIGFunCfg(32*200);
 		MySleep(POWER_PIN);	

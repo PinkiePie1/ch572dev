@@ -87,6 +87,7 @@ void main(void)
     
 	GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
 	GPIOA_ModeCfg(LED_PIN,GPIO_ModeOut_PP_5mA);
+	GPIOA_SetBits(LED_PIN);
 	
 
     sys_safe_access_enable( );
@@ -141,17 +142,20 @@ void main(void)
 		gTxParam.frequency = 37;
 		tx_flag = 1;
 		RFIP_StartTx( &gTxParam );
-		do{__nop();}while(tx_flag == 1); // 等待发送完成
+		LowPower_Idle();
+
 		gTxParam.whiteChannel=0x38; 
 		gTxParam.frequency = 38;
 		tx_flag = 1;
 		RFIP_StartTx( &gTxParam );
-		do{__nop();}while(tx_flag == 1); // 等待发送完成
+		LowPower_Idle();
+		
 		gTxParam.whiteChannel=0x39; 
 		gTxParam.frequency = 39;
 		tx_flag = 1;
 		RFIP_StartTx( &gTxParam );
-		do{__nop();}while(tx_flag == 1); // 等待发送完成
+		LowPower_Idle();
+		
 		RTC_TRIGFunCfg(32*500);
 		MySleep(POWER_PIN);	
 		RFIP_WakeUpRegInit();
