@@ -92,7 +92,7 @@ void main(void)
     sys_safe_access_disable();
     
 	GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
-
+	
 	EPD_Hal_Init();
     GPIOA_ITModeCfg(EPD_BUSY_PIN, GPIO_ITMode_FallEdge); 
     PWR_PeriphWakeUpCfg(ENABLE, RB_SLP_GPIO_WAKE, Fsys_Delay_4096);

@@ -8,7 +8,7 @@
 #include "CH57x_common.h"
 #include "main.h"
 
-#define LED_PIN GPIO_Pin_11
+#define LED_PIN GPIO_Pin_9
 
 static void GPIOInit(void)
 {
@@ -22,12 +22,21 @@ void main(void)
         GPIOA_ModeCfg(LED_PIN, GPIO_ModeOut_PP_5mA);
 	GPIOInit();
 
-	while( 1 )
+	for( uint16_t i =0;i<10;i++ )
         {
             GPIOA_SetBits(LED_PIN);
             DelayMs(100);
             GPIOA_ResetBits(LED_PIN);
             DelayMs(100);
+        }
+
+
+	for( ;; )
+        {
+            GPIOA_SetBits(LED_PIN);
+            DelayMs(500);
+            GPIOA_ResetBits(LED_PIN);
+            DelayMs(500);
         }
 
 }
