@@ -13,8 +13,8 @@ void dCMD(uint8_t dat)
         SCLK_LOW;
         dat <<= 1;
     }
-    SDI_HIGH;
     CS_HIGH;
+    SDI_HIGH;
     SCLK_HIGH;
 
 }
@@ -31,18 +31,17 @@ void dDAT(uint8_t dat)
         SCLK_LOW;
         dat <<= 1;
     }
-    SDI_HIGH;
     CS_HIGH;
+    SDI_HIGH;
     SCLK_HIGH;
 
 }
 
 void dMulDAT(uint8_t * buf, uint16_t length)
 {
-    SDI_HIGH;
-    SCLK_HIGH;
     DC_HIGH;
     CS_LOW;
+    SCLK_LOW;
     for(uint16_t j = 0; j < length; j++){
         uint8_t dat = buf[j];
         for(uint8_t i = 0; i < 8;i++)
@@ -53,8 +52,9 @@ void dMulDAT(uint8_t * buf, uint16_t length)
             dat <<= 1;
         }
     }
-    SDI_HIGH;
     CS_HIGH;
+    SDI_HIGH;
+    SCLK_HIGH;
 }
 
 void ST7305_Init(void)
@@ -113,15 +113,14 @@ void ST7305_Init(void)
     Dev_DelayMs(100);
 
 }
-uint8_t flip = 0;
+
 void ST7305_RAM(uint8_t *display)
 {
     dCMD(0x2A);dDAT(0x17);dDAT(0x24);
     dCMD(0x2B);dDAT(0x00);dDAT(0xBF);
     dCMD(0x2C);
     uint8_t buf[8064] = {0};
-    if(flip == 0){flip = 0xFF;} else {flip = 0;}
-    for(uint16_t i=0;i<5000;i++){buf[i]=flip;}
+    for(uint16_t i=0;i<5000;i++){buf[i]=0xF0;}
     dMulDAT(buf,8064);
 
 }
