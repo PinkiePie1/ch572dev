@@ -23,27 +23,17 @@ void main(void)
     GPIOA_ModeCfg(LED_PIN, GPIO_ModeOut_PP_5mA);
     GPIOInit();
 
-    for(uint16_t i = 0; i < 5; i++)
-    {
-        GPIOA_SetBits(LED_PIN);
-        DelayMs(100);
-        GPIOA_ResetBits(LED_PIN);
-        DelayMs(100);
-    }
-
-
     ST7305_Init();
     DelayMs(10);
-    uint8_t * display = {0};
-    ST7305_RAM(display);
-
+    uint8_t flip  = 0;
+    uint8_t buf[8064] = {0};
     while(1)
     {
-        GPIOA_SetBits(LED_PIN);
-        DelayMs(3000);
-        GPIOA_ResetBits(LED_PIN);
-        DelayMs(3000);
-        ST7305_RAM(display);
+        
+        flip = flip == 0x00?0xFF:0x00;
+        for(uint16_t i=0;i<8064;i++){buf[i]=flip;}
+        DelayMs(900);
+        ST7305_RAM(buf);
     }
 
     while(1);

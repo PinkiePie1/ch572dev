@@ -3,15 +3,22 @@
 
 #include "CH57x_common.h"
 
+#ifndef ST7305_SPI_MODE
+#define ST7305_SPI_MODE 1
+//soft SPI
+#endif
+
+
 //bit bang SPI pin definitions
 #define TE_PIN GPIO_Pin_2
 #define CS_PIN GPIO_Pin_11
 #define DC_PIN GPIO_Pin_10
-#define RES_PIN GPIO_Pin_7
-#define SDI_PIN GPIO_Pin_6
+#define RES_PIN GPIO_Pin_6
+#define SDI_PIN GPIO_Pin_7
 #define SCLK_PIN GPIO_Pin_5
 
-#define TE_ISLOW (GPIOA_ReadPortPin(GPIOA,TE_PIN) == 0)
+#define TE_ISHIGH (GPIOA_ReadPortPin(TE_PIN) != 0)
+#define TE_ISLOW (GPIOA_ReadPortPin(TE_PIN) == 0)
 #define CS_LOW GPIOA_ResetBits(CS_PIN)
 #define CS_HIGH GPIOA_SetBits(CS_PIN)
 #define DC_LOW GPIOA_ResetBits(DC_PIN)
