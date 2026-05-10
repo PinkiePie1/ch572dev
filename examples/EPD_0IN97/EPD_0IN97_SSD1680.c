@@ -146,10 +146,6 @@ static void EPD_SetWindows( uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uin
     EPD_Dat( (Ystart>>8) & 0xFF );
     EPD_Dat( Yend & 0xFF );
     EPD_Dat( (Yend>>8) & 0xFF );
-
-
-
-
     
 }
 
@@ -191,10 +187,10 @@ void EPD_Init(void)
 	EPD_Cmd( 0x3C);
 	EPD_Dat( 0x02);
 
-	EPD_SetWindows(EPD_HEIGHT-1, EPD_WIDTH-1, 0, 0);
+	EPD_SetWindows(EPD_HEIGHT, EPD_WIDTH-1, 0, 0);
 	WAIT_BUSY;
 
-	EPD_SetCursor(EPD_HEIGHT-1, EPD_WIDTH-1);
+	EPD_SetCursor(EPD_HEIGHT, EPD_WIDTH-1);
 	WAIT_BUSY;
 
 	EPD_LUT(MyFastFullLUT);
@@ -315,7 +311,7 @@ void EPD_PartialDisplay(uint8_t *image)
 	WAIT_BUSY;
 */	
 //	EPD_SetWindows(0, 0, EPD_WIDTH-1, EPD_HEIGHT-1);
-	EPD_SetCursor(EPD_WIDTH-1, EPD_HEIGHT-1);
+	EPD_SetCursor(EPD_HEIGHT, EPD_WIDTH-1);
 
 //传送显示数据，不需要传送0x26
 	EPD_Cmd(0x24);
@@ -326,6 +322,7 @@ void EPD_PartialDisplay(uint8_t *image)
 	}
 	R8_SPI_CTRL_CFG &= ~(RB_SPI_BIT_ORDER);
 #else
+
     DC_HIGH;
 	CS_LOW;
 	SPI_MasterDMATrans(image,2024);
